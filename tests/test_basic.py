@@ -22,5 +22,5 @@ def test_graph_utils_2():
     from project import graph_utils
 
     graph_utils.generate_and_save_two_cycle(
-        10, 4, ("x", "y"), "../res/test_graph_utils_2.dot"
+        10, 4, ("x", "y"), "res/test_graph_utils_2.dot"
     )
