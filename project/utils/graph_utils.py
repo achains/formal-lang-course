@@ -1,5 +1,4 @@
 from collections import namedtuple
-from typing import Tuple
 from pathlib import Path
 from networkx import MultiDiGraph
 
@@ -9,21 +8,66 @@ import networkx as nx
 GraphInfo = namedtuple("GraphInfo", ["nodes", "edges", "labels"])
 
 
-def get_graph_info(name: str) -> GraphInfo:
+class GraphException(Exception):
+    """
+    Base exception for graph utils
+    """
+
+    def __init__(self, msg):
+        self.msg = msg
+
+
+def get_graph(name: str, env: dict = None) -> MultiDiGraph:
+    """
+    Finds graph with a given name.
+    First search in given environment, then in CFPQ_Data Dataset
+
+    Parameters
+    ----------
+    name: str
+        Name of graph to find
+    env : dict, default=None
+
+    Returns
+    -------
+    g : MultiDiGraph
+        Existing graph with a given name
+    """
+    if not env:
+        env = dict()
+
+    if name in env.keys():
+        graph = env[name]
+    else:
+        graph = cfpq_data.graph_from_dataset(name, verbose=False)
+
+    if not graph:
+        raise GraphException(f"Graph '{name}' is absent in dataset")
+
+    return graph
+
+
+def get_graph_info(name: str, env: dict = None) -> GraphInfo:
     """
     Show basic info of a graph with a given name
+    First search in env, then in cfpq_data.dataset.DATASET
 
     Parameters
     ----------
     name : str
         Name of real-world graph from CFPQ_Data Dataset.
+    env : dict, default=None
 
     Returns
     -------
     info : GraphInfo
         Namedtuple of (number of nodes, number of edges, set of edges' labels)
     """
-    graph = cfpq_data.graph_from_dataset(name, verbose=False)
+    if not env:
+        env = dict()
+
+    graph = get_graph(name, env)
+
     return GraphInfo(
         graph.number_of_nodes(),
         graph.number_of_edges(),
@@ -32,9 +76,10 @@ def get_graph_info(name: str) -> GraphInfo:
 
 
 def generate_two_cycles_graph(
-    first_cycle_nodes_num: int,
-    second_cycle_nodes_num: int,
-    edge_labels: Tuple[str, str],
+    first_cycle_nodes_num: str,
+    second_cycle_nodes_num: str,
+    first_cycle_label: str,
+    second_cycle_label: str,
 ) -> MultiDiGraph:
     """
     Returns a graph with two cycles connected by one node.
@@ -46,23 +91,34 @@ def generate_two_cycles_graph(
         Number of nodes in the first cycle
     second_cycle_nodes_num : int
         Number of nodes in the second cycle
-    edge_labels : Tuple[str, str]
-        Labels on the graph's edges
+    first_cycle_label : str
+        Labels on the graph's first cycle
+    second_cycle_label : str
+        Labels on the graph's second cycle
 
     Returns
     -------
     g : MultiDiGraph
         A graph with two cycles connected by one node.
     """
+    if not first_cycle_nodes_num.isdigit():
+        raise GraphException(
+            f"first_cycle_nodes_num expected to be Int, got {type(first_cycle_nodes_num)} instead"
+        )
+    if not second_cycle_nodes_num.isdigit():
+        raise GraphException(
+            f"second_cycle_nodes_num expected to be Int, got {type(second_cycle_nodes_num)} instead"
+        )
+
     return cfpq_data.labeled_two_cycles_graph(
-        first_cycle_nodes_num,
-        second_cycle_nodes_num,
-        edge_labels=edge_labels,
+        int(first_cycle_nodes_num),
+        int(second_cycle_nodes_num),
+        edge_labels=(first_cycle_label, second_cycle_label),
         verbose=False,
     )
 
 
-def save_to_dot(graph: MultiDiGraph, path_to_file: Path):
+def save_to_dot(graph: MultiDiGraph, path_to_file: str):
     """
     Saves graph to given path in DOT format
 
@@ -70,7 +126,7 @@ def save_to_dot(graph: MultiDiGraph, path_to_file: Path):
     ----------
     graph : MultiDiGraph
         Graph to save
-    path_to_file : Path
+    path_to_file : str
         Path to file
 
     Returns

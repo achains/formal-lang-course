@@ -1,8 +1,9 @@
-import repl
+from project.repl import GraphShell
 
 
 def main():
-    repl.repl()
+    """Main function, runs REPL"""
+    GraphShell().loop()
 
 
 if __name__ == "__main__":
