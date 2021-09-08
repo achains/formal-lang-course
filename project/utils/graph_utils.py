@@ -135,6 +135,7 @@ def save_to_dot(graph: MultiDiGraph, path_to_file: str):
         Path to file
     """
     g = nx.drawing.nx_pydot.to_pydot(graph)
+
     g.write_raw(path_to_file)
 
-    return Path(path_to_file).resolve()
+    return Path(path_to_file)
