@@ -1,8 +1,10 @@
 from project.utils.automata_utils import transform_graph_to_nfa
+from project.utils.automata_utils import AutomataException
 from project.utils.graph_utils import generate_two_cycles_graph
-from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State
+from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State, Symbol
 
 import pytest
+import networkx as nx
 
 
 @pytest.fixture
@@ -81,3 +83,41 @@ def test_accepts_word(
     )
 
     assert nfa.accepts(word) == expected_accept
+
+
+def test_mismatch_states(default_graph):
+    with pytest.raises(AutomataException):
+        transform_graph_to_nfa(default_graph, {0, 1, 2, 33}, {0, 1, 2, 3})
+
+
+def test_null_graph():
+    graph = nx.null_graph(create_using=nx.MultiDiGraph)
+    nfa_from_graph = transform_graph_to_nfa(graph)
+
+    assert nfa_from_graph.is_empty()
+
+
+def test_empty_graph():
+    graph = nx.empty_graph(2, create_using=nx.MultiDiGraph)
+    nfa_from_graph = transform_graph_to_nfa(graph)
+
+    nfa = NondeterministicFiniteAutomaton()
+    nfa.add_start_state(State(0))
+    nfa.add_start_state(State(1))
+    nfa.add_final_state(State(0))
+    nfa.add_final_state(State(1))
+
+    assert nfa_from_graph.is_equivalent_to(nfa)
+
+
+def test_one_node_loop_graph():
+    graph = nx.empty_graph(1, create_using=nx.MultiDiGraph)
+    graph.add_edge(0, 0, label="x")
+    nfa_from_graph = transform_graph_to_nfa(graph)
+
+    nfa = NondeterministicFiniteAutomaton()
+    nfa.add_start_state(State(0))
+    nfa.add_final_state(State(0))
+    nfa.add_transition(State(0), Symbol("x"), State(0))
+
+    assert nfa_from_graph.is_equivalent_to(nfa)
