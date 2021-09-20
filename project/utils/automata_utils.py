@@ -30,6 +30,11 @@ def transform_regex_to_dfa(regex_str: str) -> DeterministicFiniteAutomaton:
     -------
     dfa: DeterministicFiniteAutomaton
         Minimal DFA built on given regular expression
+
+    Raises
+    ------
+    AutomataException
+        If the incorrect regular expression is passed to the function
     """
 
     try:
@@ -63,6 +68,11 @@ def transform_graph_to_nfa(
     -------
     nfa: NondeterministicFiniteAutomaton
         NFA built on given graph
+
+    Raises
+    ------
+    AutomataException
+        If given start or final states do not match graph nodes
     """
 
     nfa = NondeterministicFiniteAutomaton()
@@ -71,10 +81,22 @@ def transform_graph_to_nfa(
         edge_data = graph.get_edge_data(node_from, node_to)[0]["label"]
         nfa.add_transition(node_from, edge_data, node_to)
 
+    graph_nodes = graph.nodes()
+
     if not start_states:
-        start_states = set(graph.nodes())
+        start_states = set(graph_nodes)
     if not final_states:
-        final_states = set(graph.nodes())
+        final_states = set(graph_nodes)
+
+    # Check whether start and final states are correct graph nodes
+    if not start_states.issubset(graph_nodes):
+        raise AutomataException(
+            f"Invalid start states: {start_states.difference(set(graph_nodes))}"
+        )
+    if not final_states.issubset(graph_nodes):
+        raise AutomataException(
+            f"Invalid final states: {final_states.difference(set(graph_nodes))}"
+        )
 
     for state in start_states:
         nfa.add_start_state(State(state))
