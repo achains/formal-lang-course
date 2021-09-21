@@ -39,8 +39,8 @@ def transform_regex_to_dfa(regex_str: str) -> DeterministicFiniteAutomaton:
 
     try:
         regex = Regex(regex_str)
-    except MisformedRegexError:
-        raise AutomataException(f"Invalid regular expression")
+    except MisformedRegexError as exc:
+        raise AutomataException(f"Invalid regular expression") from exc
 
     enfa = regex.to_epsilon_nfa()
 
