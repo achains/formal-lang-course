@@ -7,6 +7,25 @@ from project.utils.automata_utils import transform_graph_to_nfa, transform_regex
 def rpq(
     graph: MultiDiGraph, query: str, start_nodes: set = None, final_nodes: set = None
 ):
+    """
+    Computes Regular Path Querying from given graph language and regular expression language
+
+    Parameters
+    ----------
+    graph: MultiDiGraph
+       Labeled graph
+    query: str
+       Regular expression given as string
+    start_nodes: set, default=None
+       Start states in NFA
+    final_nodes: set, default=None
+       Final states in NFA
+
+    Returns
+    -------
+    rpq: set
+       Regular Path Querying
+    """
 
     graph_bm = BooleanMatrix.from_nfa(
         transform_graph_to_nfa(graph, start_nodes, final_nodes)

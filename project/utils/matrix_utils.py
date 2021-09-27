@@ -3,6 +3,24 @@ from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State
 
 
 class BooleanMatrix:
+    """
+    Representation of NFA as a Boolean Matrix
+
+    Attributes
+    ----------
+    indexed_states: dict
+        Renumbered (from 0) states of NFA
+    start_states: set
+        Start states of NFA
+    final_states: set
+        Final states of NFA
+    bmatrix: dict
+        Dictionary of boolean matrices.
+        Keys are NFA labels
+    block_size: int
+        Size of a block in boolean matrix
+    """
+
     def __init__(self):
         self.indexed_states = {}
         self.start_states = set()
@@ -12,6 +30,18 @@ class BooleanMatrix:
 
     @classmethod
     def from_nfa(cls, nfa: NondeterministicFiniteAutomaton):
+        """
+        Transforms NFA into BooleanMatrix
+
+        Parameters
+        ----------
+        nfa: NondeterministicFiniteAutomaton
+            NFA to transform
+        Returns
+        -------
+        obj: BooleanMatrix
+            BooleanMatrix object from NFA
+        """
         obj = cls()
         obj.indexed_states = {state: idx for idx, state in enumerate(nfa.states)}
         obj.start_states, obj.final_states = nfa.start_states, nfa.final_states
@@ -19,6 +49,14 @@ class BooleanMatrix:
         return obj
 
     def to_nfa(self):
+        """
+        Transforms BooleanMatrix into NFA
+
+        Returns
+        -------
+        nfa: NondeterministicFiniteAutomaton
+            Representation of BooleanMatrix as NFA
+        """
         nfa = NondeterministicFiniteAutomaton()
         for label in self.bmatrix.keys():
             arr = self.bmatrix[label].toarray()
@@ -41,6 +79,14 @@ class BooleanMatrix:
         return nfa
 
     def transitive_closure(self):
+        """
+        Computes transitive closure of boolean matrices
+
+        Returns
+        -------
+        tc: dok_matrix
+            Transitive closure of boolean matrices
+        """
         tc = sum(self.bmatrix.values())
         prev_nnz = tc.nnz
         curr_nnz = 0
@@ -77,6 +123,18 @@ class BooleanMatrix:
         return bmatrix
 
     def intersect(self, other):
+        """
+        Computes intersection of self boolean matrix with other
+
+        Parameters
+        ----------
+        other: BooleanMatrix
+            Right-hand side boolean matrix
+        Returns
+        -------
+        intersection: BooleanMatrix
+            Intersection of two boolean matrices
+        """
         intersection = BooleanMatrix()
         intersection.start_states = {
             (first, second)
