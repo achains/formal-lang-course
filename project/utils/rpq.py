@@ -43,8 +43,8 @@ def rpq(
         ):
             result.add(
                 (
-                    state_from // intersection.block_size,
-                    state_to // intersection.block_size,
+                    state_from // len(query_bm.indexed_states),
+                    state_to // len(query_bm.indexed_states),
                 )
             )
 

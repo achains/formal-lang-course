@@ -121,9 +121,14 @@ class BooleanMatrix:
         nfa_dict = nfa.to_dict()
         for label in nfa.symbols:
             tmp_matrix = dok_matrix((len(nfa.states), len(nfa.states)), dtype=bool)
-            for state_from in nfa_dict:
-                if label in nfa_dict[state_from]:
-                    for state_to in nfa_dict[state_from][label]:
+            for state_from, transitions in nfa_dict.items():
+                if label in transitions:
+                    states_to = (
+                        transitions[label]
+                        if isinstance(transitions[label], set)
+                        else {transitions[label]}
+                    )
+                    for state_to in states_to:
                         tmp_matrix[
                             self.indexed_states[state_from],
                             self.indexed_states[state_to],
@@ -145,31 +150,24 @@ class BooleanMatrix:
             Intersection of two boolean matrices
         """
         intersection = BooleanMatrix()
-        intersection.start_states = {
-            (first, second)
-            for first in self.start_states
-            for second in other.start_states
-        }
-        intersection.final_states = {
-            (first, second)
-            for first in self.final_states
-            for second in other.final_states
-        }
-
-        states = {
-            (first, second)
-            for first in self.indexed_states.keys()
-            for second in other.indexed_states.keys()
-        }
-        intersection.indexed_states = {state: idx for idx, state in enumerate(states)}
-
         common_labels = self.bmatrix.keys() & other.bmatrix.keys()
 
         for label in common_labels:
             intersection.bmatrix[label] = kron(
-                self.bmatrix[label], other.bmatrix[label]
+                self.bmatrix[label], other.bmatrix[label], format="dok"
             )
 
-        intersection.block_size = len(other.indexed_states)
+        for s_fst, s_fst_idx in self.indexed_states.items():
+            for s_snd, s_snd_idx in other.indexed_states.items():
+                new_state = new_state_idx = (
+                    s_fst_idx * len(other.indexed_states) + s_snd_idx
+                )
+                intersection.indexed_states[new_state] = new_state_idx
+
+                if s_fst in self.start_states and s_snd in other.start_states:
+                    intersection.start_states.add(new_state)
+
+                if s_fst in self.final_states and s_snd in other.final_states:
+                    intersection.final_states.add(new_state)
 
         return intersection
