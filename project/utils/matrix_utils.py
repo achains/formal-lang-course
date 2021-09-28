@@ -63,8 +63,16 @@ class BooleanMatrix:
             for i in range(len(arr)):
                 for j in range(len(arr)):
                     if arr[i][j]:
-                        from_state = State((i // self.block_size, i % self.block_size))
-                        to_state = State((j // self.block_size, j % self.block_size))
+                        from_state = (
+                            State((i // self.block_size, i % self.block_size))
+                            if self.block_size > 1
+                            else State(i)
+                        )
+                        to_state = (
+                            State((j // self.block_size, j % self.block_size))
+                            if self.block_size > 1
+                            else State(j)
+                        )
                         nfa.add_transition(
                             self.indexed_states[from_state],
                             label,
@@ -117,7 +125,8 @@ class BooleanMatrix:
                 if label in nfa_dict[state_from]:
                     for state_to in nfa_dict[state_from][label]:
                         tmp_matrix[
-                            self.indexed_states[state_from], state_to.value
+                            self.indexed_states[state_from],
+                            self.indexed_states[state_to],
                         ] = True
             bmatrix[label] = tmp_matrix
         return bmatrix
