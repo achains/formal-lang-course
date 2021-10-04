@@ -95,7 +95,11 @@ class BooleanMatrix:
         tc: dok_matrix
             Transitive closure of boolean matrices
         """
+        if not self.bmatrix.values():
+            return dok_matrix((1, 1))
+
         tc = sum(self.bmatrix.values())
+
         prev_nnz = tc.nnz
         curr_nnz = 0
 
@@ -157,17 +161,17 @@ class BooleanMatrix:
                 self.bmatrix[label], other.bmatrix[label], format="dok"
             )
 
-        for s_fst, s_fst_idx in self.indexed_states.items():
-            for s_snd, s_snd_idx in other.indexed_states.items():
+        for state_lhs, s_lhs_index in self.indexed_states.items():
+            for state_rhs, s_rhs_index in other.indexed_states.items():
                 new_state = new_state_idx = (
-                    s_fst_idx * len(other.indexed_states) + s_snd_idx
+                    s_lhs_index * len(other.indexed_states) + s_rhs_index
                 )
                 intersection.indexed_states[new_state] = new_state_idx
 
-                if s_fst in self.start_states and s_snd in other.start_states:
+                if state_lhs in self.start_states and state_rhs in other.start_states:
                     intersection.start_states.add(new_state)
 
-                if s_fst in self.final_states and s_snd in other.final_states:
+                if state_lhs in self.final_states and state_rhs in other.final_states:
                     intersection.final_states.add(new_state)
 
         return intersection
