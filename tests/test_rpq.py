@@ -70,3 +70,6 @@ def test_rpq(graph, regex_str, start_nodes, final_nodes, expected_rpq):
 
     actual_rpq = rpq.rpq(graph, regex_str, start_nodes, final_nodes)
     assert actual_rpq == expected_rpq
+
+
+
