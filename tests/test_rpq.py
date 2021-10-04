@@ -20,7 +20,9 @@ def empty_graph():
 @pytest.fixture
 def acyclic_graph():
     graph = nx.MultiDiGraph()
-    graph.add_edges_from([(0, 1, {"label": "x"}), (1, 2, {"label": "y"}), (2, 3, {"label": "y"})])
+    graph.add_edges_from(
+        [(0, 1, {"label": "x"}), (1, 2, {"label": "y"}), (2, 3, {"label": "y"})]
+    )
     return graph
 
 
@@ -70,6 +72,3 @@ def test_rpq(graph, regex_str, start_nodes, final_nodes, expected_rpq):
 
     actual_rpq = rpq.rpq(graph, regex_str, start_nodes, final_nodes)
     assert actual_rpq == expected_rpq
-
-
-
