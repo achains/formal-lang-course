@@ -1,6 +1,5 @@
 from project.utils import rpq
 from project.utils.graph_utils import generate_two_cycles_graph
-from pyformlang.finite_automaton import NondeterministicFiniteAutomaton
 
 import networkx as nx
 
