@@ -59,14 +59,14 @@ def test_cfg_to_wncf_start_symbol(default_cfg, default_normal_form):
 
 
 def test_cfg_from_file(default_cfg):
-    filename = "data/test_cfg.txt"
+    filename = "tests/data/test_cfg.txt"
     cfg = CFG_utils.read_cfg_from_file(filename, "S")
     assert cfg.productions == default_cfg.productions
 
 
 def test_corrupted_cfg():
     with pytest.raises(CFG_utils.CFGException):
-        filename = "data/test_cfg_corrupted.txt"
+        filename = "tests/data/test_cfg_corrupted.txt"
         CFG_utils.read_cfg_from_file(filename, "S")
 
 
