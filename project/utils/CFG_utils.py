@@ -35,7 +35,7 @@ def read_cfg_from_file(filename: str, start_state: str):
         If CFG in file does not match required format
     """
     try:
-        with open(filename, 'r') as cfg_file:
+        with open(filename, "r") as cfg_file:
             cfg_text = cfg_file.read()
             return CFG.from_text(cfg_text, Variable(start_state))
 
@@ -43,7 +43,9 @@ def read_cfg_from_file(filename: str, start_state: str):
         raise CFGException(f"Error: File '{filename}' not found") from exc
 
     except ValueError as exc:
-        raise CFGException(f"Error: CFG form in '{filename}' might be corrupted, check the correctness of CFG") from exc
+        raise CFGException(
+            f"Error: CFG form in '{filename}' might be corrupted, check the correctness of CFG"
+        ) from exc
 
 
 def transform_cfg_to_wcnf(cfg: CFG):

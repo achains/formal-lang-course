@@ -14,14 +14,20 @@ def default_cfg():
         Production(Variable("S"), [Terminal("1"), Variable("S"), Terminal("1")]),
         Production(Variable("S"), [Variable("B"), Terminal("1")]),
         Production(Variable("B"), [Terminal("1"), Terminal("1")]),
-        Production(Variable("B"), [Variable("S"), Terminal("1")])
+        Production(Variable("B"), [Variable("S"), Terminal("1")]),
     }
     return CFG(variables, terminals, start_symbol, productions)
 
 
 @pytest.fixture
 def default_normal_form():
-    variables = {Variable("0#CNF#"), Variable("S"), Variable("C#CNF#1"), Variable("1#CNF#"), Variable("B")}
+    variables = {
+        Variable("0#CNF#"),
+        Variable("S"),
+        Variable("C#CNF#1"),
+        Variable("1#CNF#"),
+        Variable("B"),
+    }
     terminals = {Terminal("0"), Terminal("1")}
     productions = {
         Production(Variable("S"), [Variable("1#CNF#"), Variable("0#CNF#")]),
@@ -31,7 +37,7 @@ def default_normal_form():
         Production(Variable("B"), [Variable("1#CNF#"), Variable("1#CNF#")]),
         Production(Variable("0#CNF#"), [Terminal("0")]),
         Production(Variable("1#CNF#"), [Terminal("1")]),
-        Production(Variable("C#CNF#1"), [Variable("S"), Variable("1#CNF#")])
+        Production(Variable("C#CNF#1"), [Variable("S"), Variable("1#CNF#")]),
     }
     start_symbol = Variable("S")
     return CFG(variables, terminals, start_symbol, productions)
