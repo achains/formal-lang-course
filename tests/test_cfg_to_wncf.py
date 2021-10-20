@@ -1,19 +1,45 @@
 from project.utils import CFG_utils
-from pyformlang.cfg import CFG, Production, Variable, Terminal, Epsilon
+from pyformlang.cfg import CFG, Production, Variable, Terminal
 
 import pytest
 
 
+def check_epsilons(reachable_symbols, productions_old, productions_nf):
+    """
+    Test whether all epsilons in reachable variables from initial grammar are present in given normal form
+    """
+    productions_old_with_epsilon = set(
+        filter(
+            lambda prod: prod.head in reachable_symbols and not prod.body,
+            productions_old,
+        )
+    )
+    productions_nf_with_epsilon = set(
+        filter(lambda prod: not prod.body, productions_nf)
+    )
+    for production in productions_old_with_epsilon:
+        if production not in productions_nf_with_epsilon:
+            return False
+    return True
+
+
 def is_in_wncf(cfg_nf, cfg_old):
+    """
+    Test whether given cfg_nf is in Weakened Chomsky NF
+    The rules are:
+    1. A -> BC, where A, B, C in Variables
+    2. A -> a, where A in Variables, a in Terminals
+    3. A -> epsilon, where A in Variables
+    It is also checked whether every reachable epsilon production from original grammar is present in WNCF
+    """
     for production in cfg_nf.productions:
         body = production.body
-        if (
-            not (
-                (len(body) <= 2 and all(filter(lambda x: x in cfg_nf.variables, body)))
-                or (len(body) == 1 and body[0] in cfg_nf.terminals)
-                or (not body)
-            )
-            or cfg_nf.generate_epsilon() != cfg_old.generate_epsilon()
+        if not (
+            (len(body) <= 2 and all(map(lambda x: x in cfg_nf.variables, body)))
+            or (len(body) == 1 and body[0] in cfg_nf.terminals)
+            or (not body)
+        ) or not check_epsilons(
+            cfg_nf.variables, cfg_old.productions, cfg_nf.productions
         ):
             return False
     return True
@@ -97,11 +123,12 @@ def default_normal_form():
             "S",
         ),
         (
-            "S -> A | a b\n\
-          A -> B | epsilon\n\
+            "S -> A e | a b\n\
+          A -> f g | epsilon\n\
           B -> C | c d",
             "S",
         ),
+        ("S -> epsilon", "S"),
     ],
 )
 def test_is_wncf(cfg_string, start_state):
