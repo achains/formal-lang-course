@@ -1,4 +1,4 @@
-from pyformlang.cfg import CFG, Variable, Production, Epsilon
+from pyformlang.cfg import CFG, Variable
 
 
 class CFGException(Exception):
