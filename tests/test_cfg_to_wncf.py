@@ -1,11 +1,26 @@
 from project.utils import CFG_utils
-from pyformlang.cfg import CFG, Production, Variable, Terminal
+from pyformlang.cfg import CFG, Production, Variable, Terminal, Epsilon
 
 import pytest
 
 
+def is_in_wncf(cfg_nf, cfg_old):
+    for production in cfg_nf.productions:
+        body = production.body
+        if (
+            not (
+                (len(body) <= 2 and all(filter(lambda x: x in cfg_nf.variables, body)))
+                or (len(body) == 1 and body[0] in cfg_nf.terminals)
+                or (not body)
+            )
+            or cfg_nf.generate_epsilon() != cfg_old.generate_epsilon()
+        ):
+            return False
+    return True
+
+
 @pytest.fixture
-def default_cfg():
+def cfg_default():
     variables = {Variable("S"), Variable("B")}
     terminals = {Terminal("1"), Terminal("0")}
     start_symbol = Variable("S")
@@ -17,6 +32,15 @@ def default_cfg():
         Production(Variable("B"), [Variable("S"), Terminal("1")]),
     }
     return CFG(variables, terminals, start_symbol, productions)
+
+
+@pytest.fixture
+def cfg_epsilon():
+    grammar = CFG.from_text(
+        "S -> a S b S\n\
+         S -> epsilon"
+    )
+    return grammar
 
 
 @pytest.fixture
@@ -43,25 +67,69 @@ def default_normal_form():
     return CFG(variables, terminals, start_symbol, productions)
 
 
-def test_cfg_to_wncf_is_normal(default_cfg):
-    cfg_in_wncf = CFG_utils.transform_cfg_to_wcnf(default_cfg)
-    assert cfg_in_wncf.is_normal_form()
+@pytest.mark.parametrize(
+    "cfg_string,start_state",
+    [
+        (
+            "S -> a S b S\n\
+         S -> epsilon",
+            "S",
+        ),
+        (
+            "S -> A B\n\
+         A -> a B c B\n\
+         B -> d e f",
+            "S",
+        ),
+        (
+            "Expr -> Term | Expr AddOp Term | AddOp Term\n\
+          Term -> Factor | Term MulOp Factor\n\
+          Factor -> Primary | Factor pow Primary\n\
+          Primary -> number | variable\n\
+          AddOp -> add | sub\n\
+          MulOp -> mul | div",
+            "Expr",
+        ),
+        (
+            "S -> A | epsilon\n\
+          A -> a b | epsilon\n\
+          B -> epsilon",
+            "S",
+        ),
+        (
+            "S -> A | a b\n\
+          A -> B | epsilon\n\
+          B -> C | c d",
+            "S",
+        ),
+    ],
+)
+def test_is_wncf(cfg_string, start_state):
+    cfg = CFG.from_text(cfg_string, start_state)
+    cfg_in_wncf = CFG_utils.transform_cfg_to_wcnf(cfg)
+    assert is_in_wncf(cfg_in_wncf, cfg)
 
 
-def test_cfg_to_wncf_productions(default_cfg, default_normal_form):
-    cfg_in_wncf = CFG_utils.transform_cfg_to_wcnf(default_cfg)
+def test_cfg_with_epsilon(cfg_epsilon, cfg_epsilon_from_text):
+    normal_form = CFG_utils.transform_cfg_to_wcnf(cfg_epsilon_from_text)
+    print("\nGrammar productions = ", cfg_epsilon_from_text.productions)
+    print("NF productions = ", normal_form.productions)
+
+
+def test_cfg_to_wncf_productions(cfg_default, default_normal_form):
+    cfg_in_wncf = CFG_utils.transform_cfg_to_wcnf(cfg_default)
     assert cfg_in_wncf.productions == default_normal_form.productions
 
 
-def test_cfg_to_wncf_start_symbol(default_cfg, default_normal_form):
-    cfg_in_wncf = CFG_utils.transform_cfg_to_wcnf(default_cfg)
+def test_cfg_to_wncf_start_symbol(cfg_default, default_normal_form):
+    cfg_in_wncf = CFG_utils.transform_cfg_to_wcnf(cfg_default)
     assert cfg_in_wncf.start_symbol == default_normal_form.start_symbol
 
 
-def test_cfg_from_file(default_cfg):
+def test_cfg_from_file(cfg_default):
     filename = "tests/data/test_cfg.txt"
     cfg = CFG_utils.read_cfg_from_file(filename, "S")
-    assert cfg.productions == default_cfg.productions
+    assert cfg.productions == cfg_default.productions
 
 
 def test_corrupted_cfg():
