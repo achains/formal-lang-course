@@ -110,12 +110,6 @@ def test_is_wncf(cfg_string, start_state):
     assert is_in_wncf(cfg_in_wncf, cfg)
 
 
-def test_cfg_with_epsilon(cfg_epsilon, cfg_epsilon_from_text):
-    normal_form = CFG_utils.transform_cfg_to_wcnf(cfg_epsilon_from_text)
-    print("\nGrammar productions = ", cfg_epsilon_from_text.productions)
-    print("NF productions = ", normal_form.productions)
-
-
 def test_cfg_to_wncf_productions(cfg_default, default_normal_form):
     cfg_in_wncf = CFG_utils.transform_cfg_to_wcnf(cfg_default)
     assert cfg_in_wncf.productions == default_normal_form.productions
