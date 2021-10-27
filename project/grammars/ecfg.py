@@ -12,33 +12,94 @@ __all__ = ["ECFG"]
 
 
 class ECFG:
-    def __init__(self, variables=None, start_symbol=None, productions=None):
+    """
+    Extended Context Free Grammar
+
+    Attributes
+    ----------
+    variables: AbstractSet[Variable], default=None
+        Existing variables of ECFG
+    start_symbol: Variable, default=None
+        Start symbol of ECFG
+    productions: Iterable[ECFGProduction], default=None
+        ECFG productions
+    """
+    def __init__(self, variables: AbstractSet[Variable] = None,
+                 start_symbol: Variable = None,
+                 productions: Iterable[ECFGProduction] = None):
         self._variables = variables or set()
         self._start_symbol = start_symbol
         self._productions = productions or set()
 
     @property
     def variables(self) -> AbstractSet[Variable]:
-        """Get variables"""
+        """
+        Get variables
+
+        Returns
+        -------
+        variables: AbstractSet[Variable]
+            self._variables field
+        """
         return self._variables
 
     @property
     def productions(self) -> AbstractSet[ECFGProduction]:
-        """Get productions"""
+        """
+        Get productions
+
+        Returns
+        -------
+        productions: Iterable[ECFGProduction]
+            self._productions field
+        """
         return self._productions
 
     @property
     def start_symbol(self) -> Variable:
-        """Get start_symbol"""
+        """
+        Get start_symbol
+
+        Returns
+        -------
+        start_symbol: Variable
+            self._start_symbol field
+        """
         return self._start_symbol
 
     def to_text(self) -> str:
-        """Returns a string representation of CFG"""
+        """
+        Transform ECFG to string representation
+
+        Returns
+        -------
+        text: str
+            String representation of ECFG
+        """
         return "\n".join(str(p) for p in self.productions)
 
     @classmethod
-    def from_text(cls, text, start_symbol=Variable("S")) -> "ECFG":
-        """Converts string representation of ECFG into ECFG class object"""
+    def from_text(cls, text: str, start_symbol: str = Variable("S")) -> "ECFG":
+        """
+        Converts string representation of ECFG into ECFG class object
+
+        Attributes
+        ----------
+        text: str
+            String representation of ECFG
+        start_symbol: str, default=Variable("S")
+            Start symbol of ECFG
+
+        Returns
+        -------
+        ecfg: ECFG
+            ECFG object converted from string
+
+        Raises
+        ------
+        CFGException
+            If
+        """
         variables = set()
         productions = set()
         for line in text.splitlines():
@@ -65,11 +126,24 @@ class ECFG:
             productions.add(ECFGProduction(head, body))
 
         return ECFG(
-            variables=variables, start_symbol=start_symbol, productions=productions
+            variables=variables, start_symbol=Variable(start_symbol), productions=productions
         )
 
     @classmethod
     def from_pyformlang_cfg(cls, cfg: CFG):
+        """
+        Transform pyformlang CFG to ECFG object
+
+        Attributes
+        ----------
+        cfg: CFG
+            Pyformlang CFG object
+
+        Returns
+        -------
+        ecfg: ECFG
+            ECFG object
+        """
         productions = dict()
 
         for p in cfg.productions:

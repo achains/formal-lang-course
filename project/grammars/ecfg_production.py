@@ -5,6 +5,16 @@ __all__ = ["ECFGProduction"]
 
 
 class ECFGProduction:
+    """
+    ECFG Production class
+
+    Attributes
+    ----------
+    head: Variable
+        Production variable
+    body: Regex
+        Production body
+    """
     def __init__(self, head: Variable, body: Regex):
         self._head = head
         self._body = body
@@ -14,12 +24,26 @@ class ECFGProduction:
 
     @property
     def head(self):
-        """Get head"""
+        """
+        Get head
+
+        Returns
+        -------
+        head: Variable
+            self._head field
+        """
         return self._head
 
     @property
     def body(self):
-        """Get body"""
+        """
+        Get body
+
+        Returns
+        -------
+        body: Regex
+            self._body field
+        """
         return self._body
 
 
