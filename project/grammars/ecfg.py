@@ -5,8 +5,8 @@ from pyformlang.regular_expression import Regex
 
 from pyformlang.cfg import CFG
 
-from ecfg_production import ECFGProduction
-from project.utils.CFG_utils import CFGException
+from project.grammars.ecfg_production import ECFGProduction
+from project.grammars.cfg_exception import CFGException
 
 __all__ = ["ECFG"]
 

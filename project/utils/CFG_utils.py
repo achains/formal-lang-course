@@ -1,19 +1,11 @@
 from pyformlang.cfg import CFG, Variable
 
+from project.grammars.cfg_exception import CFGException
 from project.grammars.ecfg import ECFG
 from project.grammars.rsm import RSM
 from project.grammars.rsm_box import RSMBox
 
 from project.utils.automata_utils import transform_regex_to_dfa
-
-
-class CFGException(Exception):
-    """
-    Base exception for CFG utils
-    """
-
-    def __init__(self, msg):
-        self.msg = msg
 
 
 def read_cfg_from_file(filename: str, start_symbol: str):

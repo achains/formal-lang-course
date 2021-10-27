@@ -2,7 +2,7 @@ from typing import Iterable
 
 from pyformlang.cfg import Variable
 
-from rsm_box import RSMBox
+from project.grammars.rsm_box import RSMBox
 
 __all__ = ["RSM"]
 
