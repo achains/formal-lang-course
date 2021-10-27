@@ -24,9 +24,13 @@ class ECFG:
     productions: Iterable[ECFGProduction], default=None
         ECFG productions
     """
-    def __init__(self, variables: AbstractSet[Variable] = None,
-                 start_symbol: Variable = None,
-                 productions: Iterable[ECFGProduction] = None):
+
+    def __init__(
+        self,
+        variables: AbstractSet[Variable] = None,
+        start_symbol: Variable = None,
+        productions: Iterable[ECFGProduction] = None,
+    ):
         self._variables = variables or set()
         self._start_symbol = start_symbol
         self._productions = productions or set()
@@ -98,7 +102,7 @@ class ECFG:
         Raises
         ------
         CFGException
-            If
+            If ECFG-text does not match required format
         """
         variables = set()
         productions = set()
@@ -109,9 +113,7 @@ class ECFG:
 
             production_objects = line.split("->")
             if len(production_objects) != 2:
-                raise CFGException(
-                    "There should be only one production per line."
-                )
+                raise CFGException("There should be only one production per line.")
 
             head_text, body_text = production_objects
             head = Variable(head_text.strip())
@@ -126,7 +128,9 @@ class ECFG:
             productions.add(ECFGProduction(head, body))
 
         return ECFG(
-            variables=variables, start_symbol=Variable(start_symbol), productions=productions
+            variables=variables,
+            start_symbol=Variable(start_symbol),
+            productions=productions,
         )
 
     @classmethod
@@ -147,7 +151,9 @@ class ECFG:
         productions = dict()
 
         for p in cfg.productions:
-            body = Regex(" ".join(cfg_obj.value for cfg_obj in p.body) if p.body else "$")
+            body = Regex(
+                " ".join(cfg_obj.value for cfg_obj in p.body) if p.body else "$"
+            )
             if p.head not in productions:
                 productions[p.head] = body
             else:

@@ -9,7 +9,9 @@ from project.grammars.cfg_exception import CFGException
 
 
 def check_regex_equality(r1: Regex, r2: Regex):
-    return transform_regex_to_dfa(str(r1)).is_equivalent_to(transform_regex_to_dfa(str(r2)))
+    return transform_regex_to_dfa(str(r1)).is_equivalent_to(
+        transform_regex_to_dfa(str(r2))
+    )
 
 
 @pytest.mark.parametrize(

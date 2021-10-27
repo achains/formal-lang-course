@@ -15,6 +15,7 @@ class ECFGProduction:
     body: Regex
         Production body
     """
+
     def __init__(self, head: Variable, body: Regex):
         self._head = head
         self._body = body
@@ -45,5 +46,3 @@ class ECFGProduction:
             self._body field
         """
         return self._body
-
-

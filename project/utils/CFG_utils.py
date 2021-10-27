@@ -122,5 +122,7 @@ def transform_ecfg_to_rsm(ecfg: ECFG) -> RSM:
     rsm: RSM
         RSM transformed from ECFG
     """
-    boxes = [RSMBox(p.head, transform_regex_to_dfa(str(p.body))) for p in ecfg.productions]
+    boxes = [
+        RSMBox(p.head, transform_regex_to_dfa(str(p.body))) for p in ecfg.productions
+    ]
     return RSM(start_symbol=ecfg.start_symbol, boxes=boxes)
