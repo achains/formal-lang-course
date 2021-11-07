@@ -30,7 +30,7 @@ def cyk(cfg: CFG, word: str) -> bool:
     term_productions = [p for p in cnf.productions if len(p.body) == 1]
     var_productions = [p for p in cnf.productions if len(p.body) == 2]
 
-    m = [[set() for _ in range(word_len)]] * word_len
+    m = [[set() for _ in range(word_len)] for _ in range(word_len)]
 
     for i in range(word_len):
         m[i][i].update(

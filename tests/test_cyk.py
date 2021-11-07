@@ -49,7 +49,7 @@ def test_cyk_equal_pyformlang(cfg, words):
             """
             S -> epsilon
             S -> ( S )
-            S -> SS
+            S -> S S
             """,
             ["()()", "", "()", ")(", "(("],
             [True, True, True, False, False],
