@@ -4,7 +4,7 @@ from pyformlang.cfg import CFG
 from itertools import product
 from collections import namedtuple
 
-from project.utils.cfpq import cfpq
+from project.cfpq.cfpq_hellings import cfpq_hellings
 from project.utils.graph_utils import generate_two_cycles_graph
 from cfpq_data import labeled_cycle_graph
 
@@ -59,7 +59,7 @@ Config = namedtuple("Config", ["start_var", "start_nodes", "final_nodes", "exp_a
 )
 def test_cfpq_answer(cfg, graph, configs):
     assert all(
-        cfpq(
+        cfpq_hellings(
             graph,
             CFG.from_text(cfg),
             conf.start_nodes,

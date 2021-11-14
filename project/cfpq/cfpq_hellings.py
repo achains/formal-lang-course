@@ -4,10 +4,10 @@ from pyformlang.cfg import CFG, Variable
 from project.grammars.hellings import hellings
 from project.utils.CFG_utils import transform_cfg_to_wcnf
 
-__all__ = ["cfpq"]
+__all__ = ["cfpq_hellings"]
 
 
-def cfpq(
+def cfpq_hellings(
     graph: MultiDiGraph,
     cfg: CFG,
     start_nodes: set = None,
