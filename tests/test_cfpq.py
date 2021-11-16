@@ -4,11 +4,16 @@ from pyformlang.cfg import CFG
 from itertools import product
 from collections import namedtuple
 
-from project.cfpq.cfpq_hellings import cfpq_hellings
+from project.cfpq.cfpq import cfpq_hellings, cfpq_matrix
 from project.utils.graph_utils import generate_two_cycles_graph
 from cfpq_data import labeled_cycle_graph
 
 Config = namedtuple("Config", ["start_var", "start_nodes", "final_nodes", "exp_ans"])
+
+
+@pytest.fixture(params=[cfpq_matrix, cfpq_hellings])
+def cfpq_algorithm(request):
+    return request.param
 
 
 @pytest.mark.parametrize(
@@ -57,9 +62,9 @@ Config = namedtuple("Config", ["start_var", "start_nodes", "final_nodes", "exp_a
         ),
     ],
 )
-def test_cfpq_answer(cfg, graph, configs):
+def test_cfpq_answer(cfg, graph, configs, cfpq_algorithm):
     assert all(
-        cfpq_hellings(
+        cfpq_algorithm(
             graph,
             CFG.from_text(cfg),
             conf.start_nodes,
