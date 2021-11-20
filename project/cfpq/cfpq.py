@@ -1,21 +1,97 @@
 from networkx import MultiDiGraph
 from pyformlang.cfg import CFG, Variable
 
-from project.grammars.hellings import hellings
-from project.utils.CFG_utils import transform_cfg_to_wcnf
+from typing import Set, Tuple, Callable
 
-from scipy.sparse import dok_matrix
+from project.grammars.hellings import hellings
+from project.grammars.matrix_based import matrix_based
+from project.utils.CFG_utils import transform_cfg_to_wcnf, is_wcnf
+
 
 __all__ = ["cfpq_hellings", "cfpq_matrix"]
+
+
+def _filter_pairs(
+    pairs: Set[Tuple[int, int]],
+    start_nodes: Set[int] = None,
+    final_nodes: Set[int] = None,
+) -> Set[Tuple[int, int]]:
+    """
+    Filter pairs.
+    Keep pairs where first node in start nodes and second node in final nodes
+
+    Parameters
+    ----------
+    pairs: Set[Tuple[int, int]]
+        Pairs obtained from cfpq algorithm
+    start_nodes: Set[int], default = None
+        Start nodes
+    final_nodes: Set[int], default = None
+        Final nodes
+
+    Returns
+    -------
+    filtered_pairs: Set[Tuple[int, int]]
+        Filtered pairs according to start and final nodes
+    """
+    if start_nodes:
+        pairs = {(u, v) for u, v in pairs if u in start_nodes}
+    if final_nodes:
+        pairs = {(u, v) for u, v in pairs if v in final_nodes}
+
+    return pairs
+
+
+def _cfpq(
+    graph: MultiDiGraph,
+    cfg: CFG,
+    start_nodes: Set[int] = None,
+    final_nodes: Set[int] = None,
+    start_var: Variable = Variable("S"),
+    algorithm: Callable = hellings,
+) -> Set[Tuple[int, int]]:
+    """
+    Context-Free Path Querying function
+    Available algorithms:
+        1. hellings
+        2. matrix_based
+        3. [WIP] tensor
+
+    Parameters
+    ----------
+    graph: MultiDiGraph
+        Labeled graph for the Path Querying task
+    cfg: CFG
+        Query given in Context Free Grammar form
+    start_nodes: set, default=None
+        Set of graph start nodes
+    final_nodes: set, default=None
+        Set of graph final nodes
+    start_var: Variable, default=Variable("S")
+        Start variable of a grammar
+
+    Returns
+    -------
+    cfpq: Set[Tuple[int, int]]
+        Context Free Path Querying
+    """
+
+    cfg._start_symbol = start_var
+    wcnf = cfg if is_wcnf(cfg) else transform_cfg_to_wcnf(cfg)
+    reach_pairs = {
+        (u, v) for u, h, v in algorithm(wcnf, graph) if h == wcnf.start_symbol
+    }
+
+    return _filter_pairs(reach_pairs, start_nodes, final_nodes)
 
 
 def cfpq_hellings(
     graph: MultiDiGraph,
     cfg: CFG,
-    start_nodes: set = None,
-    final_nodes: set = None,
+    start_nodes: Set[int] = None,
+    final_nodes: Set[int] = None,
     start_var: Variable = Variable("S"),
-) -> set:
+) -> Set[Tuple[int, int]]:
     """
     Context-Free Path Querying based on Hellings Algorithm
 
@@ -25,38 +101,28 @@ def cfpq_hellings(
         Labeled graph for the Path Querying task
     cfg: CFG
         Query given in Context Free Grammar form
-    start_nodes: set, default=None
+    start_nodes: Set[int], default=None
         Set of graph start nodes
-    final_nodes: set, default=None
+    final_nodes: Set[int], default=None
         Set of graph final nodes
     start_var: Variable, default=Variable("S")
         Start variable of a grammar
 
     Returns
     -------
-    cfpq: set
+    cfpq: Set[Tuple[int, int]]
         Context Free Path Querying
     """
-    cfg._start_symbol = start_var
-    wcnf = transform_cfg_to_wcnf(cfg)
-    reach_pairs = {
-        (u, v) for u, h, v in hellings(wcnf, graph) if h == wcnf.start_symbol.value
-    }
-    if start_nodes:
-        reach_pairs = {(u, v) for u, v in reach_pairs if u in start_nodes}
-    if final_nodes:
-        reach_pairs = {(u, v) for u, v in reach_pairs if v in final_nodes}
-
-    return reach_pairs
+    return _cfpq(graph, cfg, start_nodes, final_nodes, start_var, algorithm=hellings)
 
 
 def cfpq_matrix(
     graph: MultiDiGraph,
     cfg: CFG,
-    start_nodes: set = None,
-    final_nodes: set = None,
+    start_nodes: Set[int] = None,
+    final_nodes: Set[int] = None,
     start_var: Variable = Variable("S"),
-) -> set:
+) -> Set[Tuple[int, int]]:
     """
     Context-Free Path Querying based on Matrix Multiplication
 
@@ -66,53 +132,18 @@ def cfpq_matrix(
         Labeled graph for the Path Querying task
     cfg: CFG
         Query given in Context Free Grammar form
-    start_nodes: set, default=None
+    start_nodes: Set[int], default=None
         Set of graph start nodes
-    final_nodes: set, default=None
+    final_nodes: Set[int], default=None
         Set of graph final nodes
     start_var: Variable, default=Variable("S")
         Start variable of a grammar
 
     Returns
     -------
-    cfpq: set
+    cfpq: Set[Tuple[int, int]]
         Context Free Path Querying
     """
-    cfg._start_symbol = start_var
-    wcnf = transform_cfg_to_wcnf(cfg)
-
-    eps_prod_heads = [p.head.value for p in wcnf.productions if not p.body]
-    term_productions = {p for p in wcnf.productions if len(p.body) == 1}
-    var_productions = {p for p in wcnf.productions if len(p.body) == 2}
-    nodes_num = graph.number_of_nodes()
-    matrices = {
-        v.value: dok_matrix((nodes_num, nodes_num), dtype=bool) for v in wcnf.variables
-    }
-
-    for v_from, v_to, data in graph.edges(data=True):
-        label = data["label"]
-        for v in {p.head.value for p in term_productions if p.body[0].value == label}:
-            matrices[v][v_from, v_to] = True
-
-    for i in range(nodes_num):
-        for v in eps_prod_heads:
-            matrices[v][i, i] = True
-
-    changed = True
-    while changed:
-        changed = False
-        for p in var_productions:
-            old_nnz = matrices[p.head.value].nnz
-            matrices[p.head.value] += (
-                matrices[p.body[0].value] @ matrices[p.body[1].value]
-            )
-            new_nnz = matrices[p.head.value].nnz
-            changed = old_nnz != new_nnz
-
-    reach_pairs = {(u, v) for u, v in zip(*matrices[wcnf.start_symbol.value].nonzero())}
-    if start_nodes:
-        reach_pairs = {(u, v) for u, v in reach_pairs if u in start_nodes}
-    if final_nodes:
-        reach_pairs = {(u, v) for u, v in reach_pairs if v in final_nodes}
-
-    return reach_pairs
+    return _cfpq(
+        graph, cfg, start_nodes, final_nodes, start_var, algorithm=matrix_based
+    )
