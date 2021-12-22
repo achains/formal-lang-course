@@ -73,10 +73,10 @@ add_final -> 'add_start' '(' (graph | var) ',' (vertices | var) ')'
 vertices -> vertex
           | range
           | vertices_set
-          | select_reachable
-          | select_final
-          | select_start
-          | select_vertices
+          | get_reachable
+          | get_final
+          | get_start
+          | get_vertices
           | '(' vertices ')'
 
 range -> '{' INT '..' INT '}'
@@ -86,7 +86,7 @@ vertex -> INT
 
 edges -> edge
        | edges_set
-       | select_edges
+       | get_edges
 
 edge -> '(' vertex ',' label ',' vertex ')'
       | '(' vertex ',' vertex ')'
@@ -94,7 +94,7 @@ edge -> '(' vertex ',' label ',' vertex ')'
 
 labels -> label
         | labels_set
-        | select_labels
+        | get_labels
 
 label -> STRING
 
@@ -116,6 +116,7 @@ get_vertices -> 'get_vertices' '(' (graph | var) ')'
 path -> STRING
 
 vertices_set -> SET<vertex>
+             | range
 labels_set -> SET<label>
 edges_set -> SET<edge>
 
@@ -130,8 +131,7 @@ val -> boolean
 boolean -> 'true'
          | 'false'
 
-SET<X> -> '{' X [, X]* '}'
-        | '{' '}'
+SET<X> -> '{' (X ',')* X? '}'
 
 NONZERO -> [1-9]
 DIGIT -> [0-9]
@@ -141,7 +141,7 @@ CHAR -> [a-z] | [A-Z]
 STRING -> '"' (CHAR | DIGIT | '_' | ' ')* '"'
 
 INITIAL_LETTER -> '_' | CHAR
-LETTER -> '_' | CHAR | DIGIT
+LETTER -> INITIAL_LETTER | DIGIT
 IDENT -> INITIAL_LETTER LETTER*
 
 WS -> [' '\t\r]+
