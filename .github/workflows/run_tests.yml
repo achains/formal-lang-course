@@ -46,6 +46,24 @@ jobs:
           python -m pip install --upgrade pip wheel setuptools
           python -m pip install -r requirements.txt
           python -m pip list
+          if [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt-get install antlr4
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+              choco install antlr4
+          else
+              brew install antlr
+          fi
+
+      - name: Build grammar
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+              antlr4 -Dlanguage=Python3 ./project/min_gql/MinGQL.g4
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+              antlr4 -Dlanguage=Python3 ./project/min_gql/MinGQL.g4
+          else
+              antlr -Dlanguage=Python3 ./project/min_gql/MinGQL.g4
+          fi
 
       # Run tests from /tests directory
       - name: Run tests
