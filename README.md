@@ -85,6 +85,14 @@
 
 ### [Эксперимент. Задача 5. RPQ](https://colab.research.google.com/drive/18JAnDswOkz-QpQAFuHz-aERRqVrdVj_c?authuser=1#scrollTo=gEsQSDtfxVjx)
 
+## Генерация парсера ANTLR
+Генерация парсера из грамматики `MinGQL.g4`
+### Linux
+`antlr4 -Dlanguage=Python3 ./project/min_gql/MinGQL.g4`
+### Windows
+`antlr4 -Dlanguage=Python3 project\min_gql\MinGQL.g4`
+### MacOS
+`antlr -Dlanguage=Python3 ./project/min_gql/MinGQL.g4`
 ## Структура репозитория
 
 ```text
