@@ -144,3 +144,7 @@ _minted-presentation/
 *.fdb_latexmk
 *.fls
 *.gz
+
+# GQL Parser Generated Files
+project/min_gql/
+!project/min_gql/MinGQL.g4
