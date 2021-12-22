@@ -20,20 +20,20 @@ expr : LP expr RP
      | expr KLEENE
      ;
 
-graph : load_graph
+graph_gql : load_graph
       | string
       | set_start
       | set_final
       | add_start
       | add_final
-      | LP graph RP
+      | LP graph_gql RP
       ;
 
 load_graph : LOAD_GRAPH LP (path | string) RP;
-set_start : SET_START LP (graph | var) COMMA (vertices | var) RP ;
-set_final : SET_FINAL LP (graph | var) COMMA (vertices | var) RP ;
-add_start : ADD_START LP (graph | var) COMMA (vertices | var) RP ;
-add_final : ADD_FINAL LP (graph | var) COMMA (vertices | var) RP ;
+set_start : SET_START LP (graph_gql | var) COMMA (vertices | var) RP ;
+set_final : SET_FINAL LP (graph_gql | var) COMMA (vertices | var) RP ;
+add_start : ADD_START LP (graph_gql | var) COMMA (vertices | var) RP ;
+add_final : ADD_FINAL LP (graph_gql | var) COMMA (vertices | var) RP ;
 
 vertices : vertex
        | range_gql
@@ -73,12 +73,12 @@ lambda_gql : FUN variables COLON expr
 map_gql : MAP LP lambda_gql COMMA expr RP;
 filter_gql : FILTER LP lambda_gql COMMA expr RP;
 
-get_edges : GET_EDGES LP (graph | var) RP ;
-get_labels : GET_LABELS LP (graph | var) RP ;
-get_reachable : GET_REACHABLE LP (graph | var) RP;
-get_final : GET_FINAL LP (graph | var) RP;
-get_start : GET_START LP (graph | var) RP;
-get_vertices : GET_VERTICES LP (graph | var) RP;
+get_edges : GET_EDGES LP (graph_gql | var) RP ;
+get_labels : GET_LABELS LP (graph_gql | var) RP ;
+get_reachable : GET_REACHABLE LP (graph_gql | var) RP;
+get_final : GET_FINAL LP (graph_gql | var) RP;
+get_start : GET_START LP (graph_gql | var) RP;
+get_vertices : GET_VERTICES LP (graph_gql | var) RP;
 
 string : STRING ;
 path : PATH ;
@@ -102,7 +102,7 @@ variables : (lambda_var COMMA)* lambda_var? ;
 lambda_var : var | var_edge ;
 
 val : boolean
-    | graph
+    | graph_gql
     | edges
     | labels
     | vertices
