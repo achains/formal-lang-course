@@ -165,6 +165,6 @@ q1 = ("l3" | l1)*;
 q2 = "l1" . "l5";
 inter = g & q1;
 start = get_start(g);
-result = filter (fun v: v in start) (map (fun ((u_g,u_q1),l,(v_g,v_q1)): u_g) (get_edges(inter)));
-print(result)
+result = filter ((fun v: v in start), (map((fun ((u_g,u_q1),l,(v_g,v_q1)): u_g), (get_edges(inter)))));
+print(result);
 ```

@@ -2,7 +2,7 @@ grammar MinGQL;
 
 prog : (EOL? WS? stmt SEMI EOL?)+ EOF;
 
-stmt : PRINT expr
+stmt : PRINT LP expr RP
      | var ASSIGN expr
      ;
 
