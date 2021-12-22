@@ -104,7 +104,13 @@ lambda -> 'fun' variables ':' expr
 mapping -> 'map' lambda expr
 filtering -> 'filter' lambda expr
 
-variables -> var [',' var]*
+variables -> lambda_var [',' lambda_var]*
+
+var_edge -> '(' var ',' var ')'
+          | '(' var ',' var ',' var ')'
+          | '(' '(' var ',' var ')' ',' var ',' '(' var ',' var ')' ')'
+
+lambda_var -> var | var_edge ;
 
 get_edges -> 'get_edges' '(' (graph | var) ')'
 get_labels -> 'get_labels' '(' (graph | var) ')'
