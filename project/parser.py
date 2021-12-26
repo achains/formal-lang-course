@@ -4,9 +4,9 @@ from pydot import Dot, Node, Edge
 
 from antlr4 import InputStream, CommonTokenStream, ParseTreeWalker, ParserRuleContext
 
-from project.min_gql.MinGQLLexer import MinGQLLexer
-from project.min_gql.MinGQLParser import MinGQLParser
-from project.min_gql.MinGQLListener import MinGQLListener
+from project.min_gql.grammar.MinGQLLexer import MinGQLLexer
+from project.min_gql.grammar.MinGQLParser import MinGQLParser
+from project.min_gql.grammar.MinGQLListener import MinGQLListener
 
 from pathlib import Path
 
