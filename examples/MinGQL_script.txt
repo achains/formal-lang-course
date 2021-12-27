@@ -1,0 +1,6 @@
+g = load_graph("wine");
+new_g = set_start(g, {1..100});
+g_labels = get_labels(new_g);
+common_labels = g_labels & (load_graph("pizza"));
+
+print(common_labels);
