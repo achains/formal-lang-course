@@ -146,5 +146,5 @@ _minted-presentation/
 *.gz
 
 # GQL Parser Generated Files
-project/min_gql/grammar
+project/min_gql/grammar/*
 !project/min_gql/grammar/MinGQL.g4
