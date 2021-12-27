@@ -108,7 +108,7 @@ val : boolean
     | vertices
     ;
 
-boolean : 'true' | 'false' ;
+boolean : TRUE | FALSE ;
 
 // TOKENS
 COLON : WS? ':' WS? ;
@@ -127,6 +127,9 @@ GET_VERTICES: WS? 'get_vertices' WS? ;
 FILTER : WS? 'filter' WS? ;
 MAP : WS? 'map' WS? ;
 PRINT : WS? 'print' WS?;
+
+TRUE : WS? 'true' WS?;
+FALSE : WS? 'false' WS?;
 
 ASSIGN : WS? '=' WS? ;
 AND : WS? '&' WS?;

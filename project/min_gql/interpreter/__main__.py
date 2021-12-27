@@ -1,16 +1,20 @@
-from project.min_gql.interpreter import mingql
+import sys
+
+from antlr4 import InputStream, CommonTokenStream
+
+from project.min_gql.grammar.MinGQLLexer import MinGQLLexer
+from project.min_gql.grammar.MinGQLParser import MinGQLParser
+from project.min_gql.interpreter.CustomVisitor import CustomVisitor
 
 
-def main(*args, **kwargs):
-    """
+if __name__ == '__main__':
+    input_stream = InputStream(sys.stdin.readline())
 
-    Returns
-    -------
-    Result of interpreter evaluation
-    """
+    lexer = MinGQLLexer(input_stream)
+    token_stream = CommonTokenStream(lexer)
+    parser = MinGQLParser(token_stream)
+    tree = parser.prog()
 
-    return mingql(*args, **kwargs)
+    visitor = CustomVisitor()
+    print("Result: ", visitor.visit(tree))
 
-
-if __name__ == "__main__":
-    main()
