@@ -21,7 +21,6 @@ expr : LP expr RP
      ;
 
 graph_gql : load_graph
-      | string
       | set_start
       | set_final
       | add_start

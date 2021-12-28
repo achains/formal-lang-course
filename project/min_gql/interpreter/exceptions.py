@@ -23,4 +23,13 @@ class ConversionException(RunTimeException):
     """
 
     def __init__(self, lhs: str, rhs: str):
-        self.msg = f""
+        self.msg = f"conversion error"
+
+
+class NotImplementedException(RunTimeException):
+    """
+    Raises when evaluated instruction has not yet implemented
+    """
+
+    def __init__(self, instruction):
+        self.msg = f"{instruction} is not implemented"

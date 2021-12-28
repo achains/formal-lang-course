@@ -1,6 +1,11 @@
 from project.min_gql.grammar.MinGQLVisitor import MinGQLVisitor
 from project.min_gql.grammar.MinGQLParser import MinGQLParser
 
+from project.min_gql.interpreter.gqltypes.GQLType import GQLType
+from project.min_gql.interpreter.gqltypes.GQLGraph import GQLGraph
+
+from project.min_gql.interpreter.utils.runtime import get_graph_by_name
+
 from antlr4 import ParserRuleContext
 
 import sys
@@ -16,7 +21,7 @@ class CustomVisitor(MinGQLVisitor):
     def visitProg(self, ctx: ParserRuleContext):
         return self.visitChildren(ctx)
 
-    def visitExpr(self, ctx: ParserRuleContext):
+    def visitExpr(self, ctx: ParserRuleContext) -> GQLType:
         return self.visitChildren(ctx)
 
     def visitStmt(self, ctx: MinGQLParser.StmtContext):
@@ -79,6 +84,12 @@ class CustomVisitor(MinGQLVisitor):
 
         return edges_set
 
+    def visitLambda_var(self, ctx: MinGQLParser.Lambda_varContext):
+        pass
+
+    def visitLambda_gql(self, ctx: MinGQLParser.Lambda_gqlContext):
+        pass
+
     def visitMap_gql(self, ctx: MinGQLParser.Map_gqlContext):
         fun = self.visit(ctx.lambda_gql())
         iterable = self.visit(ctx.expr())
@@ -89,10 +100,47 @@ class CustomVisitor(MinGQLVisitor):
             mapping_result.add(fun.apply(elem))
         return mapping_result
 
+    def visitFilter_gql(self, ctx: MinGQLParser.Filter_gqlContext):
+        pass
+
+    def visitGraph_gql(self, ctx: MinGQLParser.Graph_gqlContext) -> GQLGraph:
+        return self.visitChildren(ctx)
+
     def visitLoad_graph(self, ctx: MinGQLParser.Load_graphContext):
-        path = ctx.path().getText()
+        name = ctx.string().getText().strip('"')
+        return get_graph_by_name(name)
 
+    def visitSet_final(self, ctx: MinGQLParser.Set_finalContext):
+        graph = self.visit(ctx.var(0)) or self.visit(ctx.graph_gql())
+        final_states = self.visit(ctx.var(1)) or self.visit(ctx.vertices())
+        graph.setFinal(final_states)
+        return graph
 
-    def visitGraph_gql(self, ctx: MinGQLParser.Graph_gqlContext):
-        if ctx.load_graph():
-            return self.visit(ctx.load_graph())
+    def visitSet_start(self, ctx: MinGQLParser.Set_startContext):
+        pass
+
+    def visitAdd_start(self, ctx: MinGQLParser.Add_startContext):
+        pass
+
+    def visitAdd_final(self, ctx: MinGQLParser.Add_finalContext):
+        pass
+
+    def visitGet_edges(self, ctx: MinGQLParser.Get_edgesContext):
+        pass
+
+    def visitGet_labels(self, ctx: MinGQLParser.Get_labelsContext):
+        pass
+
+    def visitGet_start(self, ctx: MinGQLParser.Get_startContext):
+        graph = self.visit(ctx.var()) or self.visit(ctx.graph_gql())
+        return graph.start
+
+    def visitGet_final(self, ctx: MinGQLParser.Get_finalContext):
+        graph = self.visit(ctx.var()) or self.visit(ctx.graph_gql())
+        return graph.final
+
+    def visitGet_vertices(self, ctx: MinGQLParser.Get_verticesContext):
+        pass
+
+    def visitGet_reachable(self, ctx: MinGQLParser.Get_reachableContext):
+        pass
