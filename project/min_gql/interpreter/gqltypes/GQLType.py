@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class GQLType(ABC):
     """
-    Interface class for Interpreter types
+    Base Interface class for Interpreter types
     """
     @abstractmethod
     def __str__(self):
@@ -19,4 +19,8 @@ class GQLType(ABC):
 
     @abstractmethod
     def dot(self, other):
+        pass
+
+    @abstractmethod
+    def inverse(self):
         pass

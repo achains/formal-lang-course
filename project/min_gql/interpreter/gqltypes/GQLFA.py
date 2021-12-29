@@ -1,4 +1,4 @@
-from project.min_gql.interpreter.gqltypes.GQLType import GQLType
+from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
 from project.utils.automata_utils import transform_graph_to_nfa, add_nfa_states, replace_nfa_states
 
 from networkx import MultiDiGraph
@@ -7,7 +7,7 @@ from pyformlang.finite_automaton import NondeterministicFiniteAutomaton
 from project.min_gql.interpreter.exceptions import NotImplementedException
 
 
-class GQLGraph(GQLType):
+class GQLFA(GQLAutomata):
     def __init__(self, nfa: NondeterministicFiniteAutomaton):
         self.nfa = nfa
 
@@ -24,6 +24,9 @@ class GQLGraph(GQLType):
     def dot(self, other):
         raise NotImplementedException("Graph.dot")
 
+    def inverse(self):
+        raise NotImplementedException("Graph.inverse")
+
     def __str__(self):
         return "Some graph"
 
@@ -38,6 +41,9 @@ class GQLGraph(GQLType):
 
     def addFinal(self, final_states):
         self.nfa = add_nfa_states(self.nfa, final_states=final_states)
+
+    def getReachable(self):
+        pass
 
     @property
     def start(self):
@@ -54,3 +60,7 @@ class GQLGraph(GQLType):
     @property
     def edges(self):
         raise NotImplementedException("Graph.edges")
+
+    @property
+    def vertices(self):
+        raise NotImplementedException("Graph.vertices")

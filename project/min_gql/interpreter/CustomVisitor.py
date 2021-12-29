@@ -2,10 +2,11 @@ from project.min_gql.grammar.MinGQLVisitor import MinGQLVisitor
 from project.min_gql.grammar.MinGQLParser import MinGQLParser
 
 from project.min_gql.interpreter.gqltypes.GQLType import GQLType
-from project.min_gql.interpreter.gqltypes.GQLGraph import GQLGraph
-from project.min_gql.interpreter.gqltypes.GQLRegex import GQLRegex
+from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
+from project.min_gql.interpreter.gqltypes.GQLBool import GQLBool
 
 from project.min_gql.interpreter.utils.runtime import get_graph_by_name
+from project.min_gql.interpreter.exceptions import NotImplementedException
 
 from antlr4 import ParserRuleContext
 from typing import Union
@@ -15,7 +16,7 @@ import sys
 
 class CustomVisitor(MinGQLVisitor):
     def __init__(self):
-        self.memory = {}
+        self.memory = [{}]
         self.level = 0
 
     def visitProg(self, ctx: ParserRuleContext):
@@ -23,16 +24,18 @@ class CustomVisitor(MinGQLVisitor):
 
     def visitExpr(self, ctx: MinGQLParser.ExprContext) -> GQLType:
         binary_op = {"AND": "intersect", "OR": "union", "DOT": "dot"}
-        unary_op = {"NOT": "not", }
+        unary_op = {"NOT": "inverse", }
         for b_op in binary_op:
             if getattr(ctx, b_op)():
                 lhs = self.visit(ctx.expr(0))
                 rhs = self.visit(ctx.expr(1))
-                # return eval_binary(lhs, rhs, b_op)
+                return getattr(lhs, binary_op[b_op])(rhs)
         for u_op in unary_op:
             if getattr(ctx, u_op)():
                 lhs = self.visit(ctx.expr(0))
-                # return eval_unary(lhs, u_op)
+                return getattr(lhs, unary_op[u_op])()
+
+        return self.visitChildren(ctx)
 
     def visitStmt(self, ctx: MinGQLParser.StmtContext):
         if ctx.PRINT():
@@ -48,7 +51,7 @@ class CustomVisitor(MinGQLVisitor):
         return value
 
     def visitBoolean(self, ctx: MinGQLParser.BooleanContext):
-        return ctx.TRUE() or False
+        return GQLBool(ctx.TRUE() is not None)
 
     def visitVar(self, ctx: MinGQLParser.VarContext):
         name = ctx.IDENT().getText()
@@ -93,11 +96,25 @@ class CustomVisitor(MinGQLVisitor):
 
         return edges_set
 
+    def visitVariables(self, ctx: MinGQLParser.VariablesContext):
+        lambda_context = {}
+        for v in ctx.lambda_var():
+            lambda_context[self.visitLambda_var(v)] = None
+
+        return lambda_context
+
+    # TODO: Implement VarEdge
     def visitLambda_var(self, ctx: MinGQLParser.Lambda_varContext):
-        pass
+        if ctx.var():
+            return ctx.var().getText()
+        elif ctx.var_edge():
+            raise NotImplementedException("Lambda doesn't support varEdge for now")
 
     def visitLambda_gql(self, ctx: MinGQLParser.Lambda_gqlContext):
-        pass
+        lambda_context = self.visitVariables(ctx.variables())
+        lambda_body = self.visitExpr(ctx.expr())
+
+        print(lambda_context)
 
     def visitMap_gql(self, ctx: MinGQLParser.Map_gqlContext):
         fun = self.visit(ctx.lambda_gql())
@@ -112,7 +129,7 @@ class CustomVisitor(MinGQLVisitor):
     def visitFilter_gql(self, ctx: MinGQLParser.Filter_gqlContext):
         pass
 
-    def visitGraph_gql(self, ctx: MinGQLParser.Graph_gqlContext) -> GQLGraph:
+    def visitGraph_gql(self, ctx: MinGQLParser.Graph_gqlContext) -> GQLAutomata:
         return self.visitChildren(ctx)
 
     def visitLoad_graph(self, ctx: MinGQLParser.Load_graphContext):
@@ -140,26 +157,28 @@ class CustomVisitor(MinGQLVisitor):
     def visitAdd_final(self, ctx: MinGQLParser.Add_finalContext):
         return self._modify_states(ctx, modify_method="addFinal")
 
+    def _get_graph_info(self, ctx: Union[MinGQLParser.Get_edgesContext, MinGQLParser.Get_labelsContext,
+                                         MinGQLParser.Get_startContext, MinGQLParser.Get_finalContext,
+                                         MinGQLParser.Get_verticesContext, MinGQLParser.Get_reachableContext],
+                        info_method=None):
+        graph = self.visit(ctx.var) if ctx.var() else self.visit(ctx.graph_gql())
+        return getattr(graph, info_method)
+
     def visitGet_edges(self, ctx: MinGQLParser.Get_edgesContext):
-        graph = self.visit(ctx.var()) or self.visit(ctx.graph_gql())
-        return graph.edges
+        return self._get_graph_info(ctx, info_method="edges")
 
     def visitGet_labels(self, ctx: MinGQLParser.Get_labelsContext):
-        graph = self.visit(ctx.var()) or self.visit(ctx.graph_gql())
-        return graph.labels
+        return self._get_graph_info(ctx, info_method="labels")
 
     def visitGet_start(self, ctx: MinGQLParser.Get_startContext):
-        graph = self.visit(ctx.var()) or self.visit(ctx.graph_gql())
-        return graph.start
+        return self._get_graph_info(ctx, info_method="start")
 
     def visitGet_final(self, ctx: MinGQLParser.Get_finalContext):
-        graph = self.visit(ctx.var()) or self.visit(ctx.graph_gql())
-        return graph.final
+        return self._get_graph_info(ctx, info_method="final")
 
     def visitGet_vertices(self, ctx: MinGQLParser.Get_verticesContext):
-        graph = self.visit(ctx.var()) or self.visit(ctx.graph_gql())
-        return graph.vertices
+        return self._get_graph_info(ctx, info_method="vertices")
 
     def visitGet_reachable(self, ctx: MinGQLParser.Get_reachableContext):
-        graph = self.visit(ctx.var()) or self.visit(ctx.graph_gql())
+        graph = self.visit(ctx.var) if ctx.var() else self.visit(ctx.graph_gql())
         return graph.getReachable()

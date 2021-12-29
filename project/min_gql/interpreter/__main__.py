@@ -8,7 +8,8 @@ from project.min_gql.interpreter.CustomVisitor import CustomVisitor
 
 
 if __name__ == '__main__':
-    input_stream = InputStream(''.join(sys.stdin.readlines()))
+    # input_stream = InputStream(''.join(sys.stdin.readlines()))
+    input_stream = InputStream(input())
 
     lexer = MinGQLLexer(input_stream)
     token_stream = CommonTokenStream(lexer)
@@ -16,5 +17,5 @@ if __name__ == '__main__':
     tree = parser.prog()
 
     visitor = CustomVisitor()
-    print("Result: ", visitor.visit(tree))
+    visitor.visit(tree)
 

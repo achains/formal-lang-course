@@ -66,8 +66,7 @@ label : string ;
 
 
 lambda_gql : FUN variables COLON expr
-       | FUN COLON expr
-       | LP lambda_gql RP ;
+           | LP lambda_gql RP ;
 
 map_gql : MAP LP lambda_gql COMMA expr RP;
 filter_gql : FILTER LP lambda_gql COMMA expr RP;
@@ -96,7 +95,7 @@ var_edge : LP var COMMA var RP
          | LP LP var COMMA var RP COMMA var COMMA LP var COMMA var RP RP
          ;
 
-variables : (lambda_var COMMA)* lambda_var? ;
+variables : lambda_var (COMMA lambda_var)* COMMA?;
 
 lambda_var : var | var_edge ;
 

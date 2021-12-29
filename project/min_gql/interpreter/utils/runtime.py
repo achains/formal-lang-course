@@ -1,17 +1,15 @@
 from project.utils.graph_utils import get_graph
 from project.utils.graph_utils import GraphException
 
-from networkx import MultiDiGraph
-
 from project.min_gql.interpreter.exceptions import LoadGraphException
 
-from project.min_gql.interpreter.gqltypes.GQLGraph import GQLGraph
+from project.min_gql.interpreter.gqltypes.GQLFA import GQLFA
 
 
-def get_graph_by_name(name: str) -> GQLGraph:
+def get_graph_by_name(name: str) -> GQLFA:
     try:
         graph = get_graph(name=name)
     except GraphException as exc:
         raise LoadGraphException(name=name) from exc
 
-    return GQLGraph.fromGraph(graph)
+    return GQLFA.fromGraph(graph)
