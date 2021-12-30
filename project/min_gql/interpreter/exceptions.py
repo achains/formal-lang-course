@@ -14,7 +14,7 @@ class LoadGraphException(RunTimeException):
     """
 
     def __init__(self, name: str):
-        self.msg = f"Can not open graph '{name}'. Check correctness of given name"
+        self.msg = f"Could not open graph '{name}'. Check correctness of given name"
 
 
 class ConversionException(RunTimeException):
@@ -33,3 +33,21 @@ class NotImplementedException(RunTimeException):
 
     def __init__(self, instruction):
         self.msg = f"{instruction} is not implemented"
+
+
+class VariableNotFoundException(RunTimeException):
+    """
+    Raises if variable is not found in Memory object
+    """
+
+    def __init__(self, name: str):
+        self.msg = f"Variable name '{name}' is not defined"
+
+
+class GQLTypeError(RunTimeException):
+    """
+    Raises if expected and actual types differ
+    """
+
+    def __init__(self, expected_t: type, actual_t: type):
+        self.msg = f"Type {actual_t} is not {expected_t}"

@@ -1,5 +1,6 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
 from project.utils.automata_utils import transform_graph_to_nfa, add_nfa_states, replace_nfa_states
+from project.utils.rsm_sparse import RSMMatrixSparse
 
 from networkx import MultiDiGraph
 from pyformlang.finite_automaton import NondeterministicFiniteAutomaton
@@ -16,16 +17,23 @@ class GQLFA(GQLAutomata):
         return cls(nfa=transform_graph_to_nfa(graph))
 
     def intersect(self, other):
-        raise NotImplementedException("Graph.intersect")
+        return GQLFA(self.nfa.get_intersection(other))
 
     def union(self, other):
-        raise NotImplementedException("Graph.union")
+        return GQLFA(self.nfa.union(other).to_deterministic())
 
     def dot(self, other):
-        raise NotImplementedException("Graph.dot")
+        lhs = self.nfa.to_regex()
+        rhs = other.nfa.to_regex()
+        return GQLFA(lhs.concatenate(rhs).to_epsilon_nfa().to_deterministic())
 
     def inverse(self):
-        raise NotImplementedException("Graph.inverse")
+        inv_nfa = self.nfa.copy()
+        for state in inv_nfa.states:
+            inv_nfa.add_final_state(state)
+        for state in self.nfa.final_states:
+            inv_nfa.remove_final_state(state)
+        return GQLFA(nfa=inv_nfa)
 
     def __str__(self):
         return "Some graph"
@@ -43,7 +51,7 @@ class GQLFA(GQLAutomata):
         self.nfa = add_nfa_states(self.nfa, final_states=final_states)
 
     def getReachable(self):
-        pass
+        raise NotImplementedException("Graph.Reachable")
 
     @property
     def start(self):
@@ -59,8 +67,8 @@ class GQLFA(GQLAutomata):
 
     @property
     def edges(self):
-        raise NotImplementedException("Graph.edges")
+        raise self.nfa.states
 
     @property
     def vertices(self):
-        raise NotImplementedException("Graph.vertices")
+        return self.nfa.states

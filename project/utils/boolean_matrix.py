@@ -256,6 +256,7 @@ class BooleanMatrix(ABC):
             intersection.bmatrix[label] = self._kron(
                 self.bmatrix[label], other.bmatrix[label]
             )
+            self.block_size = self.bmatrix[label].shape[0]
 
         for state_lhs, s_lhs_index in self.indexed_states.items():
             for state_rhs, s_rhs_index in other.indexed_states.items():

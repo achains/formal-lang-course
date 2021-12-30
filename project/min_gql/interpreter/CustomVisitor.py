@@ -4,20 +4,27 @@ from project.min_gql.grammar.MinGQLParser import MinGQLParser
 from project.min_gql.interpreter.gqltypes.GQLType import GQLType
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
 from project.min_gql.interpreter.gqltypes.GQLBool import GQLBool
+from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
+
+from project.min_gql.interpreter.memory.Memory import Memory
 
 from project.min_gql.interpreter.utils.runtime import get_graph_by_name
 from project.min_gql.interpreter.exceptions import NotImplementedException
+from project.min_gql.interpreter.exceptions import GQLTypeError
 
 from antlr4 import ParserRuleContext
 from typing import Union
+from collections import namedtuple
 
 import sys
 
 
+Fun = namedtuple("Fun", ["params", "body"])
+
+
 class CustomVisitor(MinGQLVisitor):
     def __init__(self):
-        self.memory = [{}]
-        self.level = 0
+        self.memory = Memory()
 
     def visitProg(self, ctx: ParserRuleContext):
         return self.visitChildren(ctx)
@@ -44,7 +51,7 @@ class CustomVisitor(MinGQLVisitor):
         else:
             name = ctx.var().getText()
             value = self.visit(ctx.expr())
-            self.memory[name] = value
+            self.memory.add(name, value)
 
     def visitString(self, ctx: MinGQLParser.StringContext):
         value = ctx.STRING().getText()
@@ -55,9 +62,7 @@ class CustomVisitor(MinGQLVisitor):
 
     def visitVar(self, ctx: MinGQLParser.VarContext):
         name = ctx.IDENT().getText()
-        if name in self.memory:
-            return self.memory[name]
-        raise KeyError("Wrong Variable Name")
+        return self.memory.find(name)
 
     def visitVertex(self, ctx: MinGQLParser.VertexContext):
         return int(ctx.INT().getText())
@@ -111,20 +116,19 @@ class CustomVisitor(MinGQLVisitor):
             raise NotImplementedException("Lambda doesn't support varEdge for now")
 
     def visitLambda_gql(self, ctx: MinGQLParser.Lambda_gqlContext):
-        lambda_context = self.visitVariables(ctx.variables())
-        lambda_body = self.visitExpr(ctx.expr())
+        params = self.visitVariables(ctx.variables())
+        body = ctx.expr()
 
-        print(lambda_context)
+        return Fun(params=params, body=body)
 
     def visitMap_gql(self, ctx: MinGQLParser.Map_gqlContext):
         fun = self.visit(ctx.lambda_gql())
         iterable = self.visit(ctx.expr())
-        mapping_result = set()
-        # TODO: Iterable should be Set object
-        # TODO: Implement Lambda.apply
-        for elem in iterable:
-            mapping_result.add(fun.apply(elem))
-        return mapping_result
+        if not isinstance(iterable, GQLSet):
+            raise GQLTypeError(expected_t=GQLSet, actual_t=type(iterable))
+        if len(iterable) == 0:
+            return iterable
+        pass
 
     def visitFilter_gql(self, ctx: MinGQLParser.Filter_gqlContext):
         pass
@@ -161,7 +165,7 @@ class CustomVisitor(MinGQLVisitor):
                                          MinGQLParser.Get_startContext, MinGQLParser.Get_finalContext,
                                          MinGQLParser.Get_verticesContext, MinGQLParser.Get_reachableContext],
                         info_method=None):
-        graph = self.visit(ctx.var) if ctx.var() else self.visit(ctx.graph_gql())
+        graph = self.visit(ctx.var()) if ctx.var() else self.visit(ctx.graph_gql())
         return getattr(graph, info_method)
 
     def visitGet_edges(self, ctx: MinGQLParser.Get_edgesContext):
@@ -180,5 +184,5 @@ class CustomVisitor(MinGQLVisitor):
         return self._get_graph_info(ctx, info_method="vertices")
 
     def visitGet_reachable(self, ctx: MinGQLParser.Get_reachableContext):
-        graph = self.visit(ctx.var) if ctx.var() else self.visit(ctx.graph_gql())
+        graph = self.visit(ctx.var()) if ctx.var() else self.visit(ctx.graph_gql())
         return graph.getReachable()
