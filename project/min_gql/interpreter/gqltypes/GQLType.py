@@ -24,3 +24,7 @@ class GQLType(ABC):
     @abstractmethod
     def inverse(self):
         pass
+
+    @abstractmethod
+    def kleene(self):
+        pass

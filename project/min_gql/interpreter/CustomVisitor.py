@@ -3,6 +3,7 @@ from project.min_gql.grammar.MinGQLParser import MinGQLParser
 
 from project.min_gql.interpreter.gqltypes.GQLType import GQLType
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
+from project.min_gql.interpreter.gqltypes.GQLRegex import GQLRegex
 from project.min_gql.interpreter.gqltypes.GQLBool import GQLBool
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
 
@@ -31,7 +32,7 @@ class CustomVisitor(MinGQLVisitor):
 
     def visitExpr(self, ctx: MinGQLParser.ExprContext) -> GQLType:
         binary_op = {"AND": "intersect", "OR": "union", "DOT": "dot"}
-        unary_op = {"NOT": "inverse", }
+        unary_op = {"NOT": "inverse", "KLEENE": "kleene"}
         for b_op in binary_op:
             if getattr(ctx, b_op)():
                 lhs = self.visit(ctx.expr(0))
@@ -76,7 +77,7 @@ class CustomVisitor(MinGQLVisitor):
         return set(map(lambda x: int(x.getText()), ctx.INT()))
 
     def visitLabel(self, ctx: MinGQLParser.LabelContext):
-        return self.visit(ctx.string())
+        return GQLRegex(self.visit(ctx.string()))
 
     def visitLabels_set(self, ctx: MinGQLParser.Labels_setContext):
         labels_set = set()

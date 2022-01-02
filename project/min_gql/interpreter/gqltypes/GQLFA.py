@@ -17,7 +17,10 @@ class GQLFA(GQLAutomata):
         return cls(nfa=transform_graph_to_nfa(graph))
 
     def intersect(self, other):
-        return GQLFA(self.nfa.get_intersection(other))
+        lhs = RSMMatrixSparse.from_nfa(self.nfa)
+        rhs = RSMMatrixSparse.from_nfa(other.nfa)
+        intersection = lhs.intersect(rhs).to_nfa()
+        return GQLFA(intersection)
 
     def union(self, other):
         return GQLFA(self.nfa.union(other).to_deterministic())
@@ -35,8 +38,11 @@ class GQLFA(GQLAutomata):
             inv_nfa.remove_final_state(state)
         return GQLFA(nfa=inv_nfa)
 
+    def kleene(self):
+        return GQLFA(nfa=self.nfa.kleene_star().to_deterministic())
+
     def __str__(self):
-        return "Some graph"
+        return self.nfa.to_dict()
 
     def setStart(self, start_states):
         self.nfa = replace_nfa_states(self.nfa, start_states=start_states)
