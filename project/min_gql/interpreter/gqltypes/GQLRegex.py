@@ -28,7 +28,7 @@ class GQLRegex(GQLType):
         elif isinstance(other, GQLFA):
             return lhs.intersect(other)
         else:
-            raise ConversionException(lhs="GQLRegex", rhs=other.__str__())
+            raise ConversionException(lhs="GQLRegex", rhs=str(other))
 
     def kleene(self):
         return GQLRegex(regex_str=f"({self.regex_str})*")

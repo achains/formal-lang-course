@@ -42,7 +42,7 @@ class GQLFA(GQLAutomata):
         return GQLFA(nfa=self.nfa.kleene_star().to_deterministic())
 
     def __str__(self):
-        return self.nfa.to_dict()
+        return str(self.nfa.to_dict())
 
     def setStart(self, start_states):
         self.nfa = replace_nfa_states(self.nfa, start_states=start_states)
