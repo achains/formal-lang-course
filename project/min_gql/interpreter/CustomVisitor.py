@@ -31,7 +31,7 @@ class CustomVisitor(MinGQLVisitor):
         return self.visitChildren(ctx)
 
     def visitExpr(self, ctx: MinGQLParser.ExprContext) -> GQLType:
-        binary_op = {"AND": "intersect", "OR": "union", "DOT": "dot"}
+        binary_op = {"AND": "intersect", "OR": "union", "DOT": "dot", "IN": "find"}
         unary_op = {"NOT": "inverse", "KLEENE": "kleene"}
         for b_op in binary_op:
             if getattr(ctx, b_op)():
@@ -71,10 +71,10 @@ class CustomVisitor(MinGQLVisitor):
     def visitRange_gql(self, ctx: MinGQLParser.Range_gqlContext):
         start = int(ctx.INT(0).getText())
         end = int(ctx.INT(1).getText())
-        return set(range(start, end + 1))
+        return GQLSet(set(range(start, end + 1)))
 
     def visitVertices_set(self, ctx: MinGQLParser.Vertices_setContext):
-        return set(map(lambda x: int(x.getText()), ctx.INT()))
+        return GQLSet(set(map(lambda x: int(x.getText()), ctx.INT())))
 
     def visitLabel(self, ctx: MinGQLParser.LabelContext):
         return GQLRegex(self.visit(ctx.string()))
@@ -84,7 +84,7 @@ class CustomVisitor(MinGQLVisitor):
         for label in ctx.STRING():
             labels_set.add(label.getText())
 
-        return labels_set
+        return GQLSet(labels_set)
 
     def visitEdge(self, ctx: MinGQLParser.EdgeContext):
         vertex_from = self.visit(ctx.vertex(0))
@@ -100,7 +100,7 @@ class CustomVisitor(MinGQLVisitor):
         for edge in ctx.edge():
             edges_set.add(self.visitEdge(edge))
 
-        return edges_set
+        return GQLSet(edges_set)
 
     def visitVariables(self, ctx: MinGQLParser.VariablesContext):
         lambda_context = {}

@@ -1,34 +1,66 @@
 from project.min_gql.interpreter.gqltypes.GQLType import GQLType
+from project.min_gql.interpreter.gqltypes.GQLBool import GQLBool
+
+from project.min_gql.interpreter.exceptions import GQLTypeError, NotImplementedException
 
 
 class GQLSet(GQLType):
-    def __init__(self, internal_type: type):
-        self._internal_type = internal_type
-        self._internal_set = set()
+    def __init__(self, internal_set: set):
+        self._internal_type = GQLSet.get_type(internal_set)
+        self._internal_set = internal_set
 
     @staticmethod
-    def _type_consistency(set_obj: set, t: type):
-        return all(map(lambda x: isinstance(x, t), set_obj))
+    def get_type(set_obj: set) -> type:
+        iseq = iter(set_obj)
+        return type(next(iseq))
 
-    # TODO: Think of Empty Set
+    @staticmethod
+    def _type_consistency(set_obj: set):
+        iseq = iter(set_obj)
+        t = type(next(iseq))
+        return all(map(lambda x: isinstance(x, t), iseq))
+
+    # TODO: Allow empty sets
     @classmethod
     def fromSet(cls, pyset: set):
-        pass
+        if len(pyset) == 0:
+            raise NotImplementedException("Set with no elements are not supported")
+        if not GQLSet._type_consistency(pyset):
+            raise GQLTypeError
+        return GQLSet(pyset)
+
+    @property
+    def t(self):
+        return self._internal_type
+
+    @property
+    def data(self):
+        return self._internal_set
 
     def __len__(self):
         return len(self._internal_set)
 
+    def find(self, value):
+        return GQLBool(value in self._internal_set)
+
     def intersect(self, other):
-        pass
+        if self.t != other.t:
+            raise GQLTypeError(self.t, other.t)
+        return GQLSet(internal_set=self.data & other.data)
 
     def union(self, other):
-        pass
+        if self.t != other.t:
+            raise GQLTypeError(self.t, other.t)
+        return GQLSet(internal_set=self.data | other.data)
 
     def dot(self, other):
-        pass
+        raise NotImplementedException("Set dot")
+
+    def kleene(self):
+        raise NotImplementedException("Set kleene")
 
     def inverse(self):
-        pass
+        raise NotImplementedException("Set inverse")
 
     def __str__(self):
-        pass
+        return str(self.data)

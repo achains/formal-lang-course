@@ -1,23 +1,33 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
+from project.min_gql.interpreter.gqltypes.GQLRegex import GQLFA, GQLRegex
 
-from project.min_gql.interpreter.exceptions import NotImplementedException
+from project.grammars.rsm import RSM
+from project.utils.rsm_sparse import RSMMatrixSparse
+
+from project.min_gql.interpreter.exceptions import NotImplementedException, ConversionException
 
 
 class GQLRSM(GQLAutomata):
-    def __init__(self):
-        pass
+    def __init__(self, rsm: RSM):
+        self.rsm = rsm
 
     def intersect(self, other):
-        raise NotImplementedException("Graph.intersect")
+        if isinstance(other, GQLFA) or isinstance(other, GQLRegex):
+            raise ConversionException
+        else:
+            lhs = RSMMatrixSparse.from_rsm(self.rsm)
+            rhs = RSMMatrixSparse.from_rsm(other.rsm)
+            inter = lhs.intersect(rhs)
+
 
     def union(self, other):
-        raise NotImplementedException("Graph.union")
+        raise NotImplementedException("RSM.union")
 
     def dot(self, other):
-        raise NotImplementedException("Graph.dot")
+        raise NotImplementedException("RSM.dot")
 
     def inverse(self):
-        raise NotImplementedException("Graph.inverse")
+        raise NotImplementedException("RSM.inverse")
 
     def __str__(self):
         return "Some graph"
