@@ -37,6 +37,8 @@ class CustomVisitor(MinGQLVisitor):
             if getattr(ctx, b_op)():
                 lhs = self.visit(ctx.expr(0))
                 rhs = self.visit(ctx.expr(1))
+                if b_op == "IN":
+                    lhs, rhs = rhs, lhs
                 return getattr(lhs, binary_op[b_op])(rhs)
         for u_op in unary_op:
             if getattr(ctx, u_op)():
@@ -109,30 +111,61 @@ class CustomVisitor(MinGQLVisitor):
 
         return lambda_context
 
-    # TODO: Implement VarEdge
+    def visitVar_edge(self, ctx: MinGQLParser.Var_edgeContext):
+        pass
+
     def visitLambda_var(self, ctx: MinGQLParser.Lambda_varContext):
         if ctx.var():
             return ctx.var().getText()
         elif ctx.var_edge():
             raise NotImplementedException("Lambda doesn't support varEdge for now")
 
-    def visitLambda_gql(self, ctx: MinGQLParser.Lambda_gqlContext):
+    def visitLambda_gql(self, ctx: MinGQLParser.Lambda_gqlContext) -> Fun:
         params = self.visitVariables(ctx.variables())
         body = ctx.expr()
 
         return Fun(params=params, body=body)
 
-    def visitMap_gql(self, ctx: MinGQLParser.Map_gqlContext):
+    def _apply_lambda(self, fun: Fun, value: GQLType) -> GQLType:
+        key = next(iter(fun.params))
+        self.memory = self.memory.nextScope()
+        self.memory.add(key, value)
+        result = self.visit(fun.body)
+        self.memory = self.memory.removeLast()
+        return result
+
+    def _iter_method(self, ctx: Union[MinGQLParser.Map_gqlContext, MinGQLParser.Filter_gqlContext], method="map"):
         fun = self.visit(ctx.lambda_gql())
         iterable = self.visit(ctx.expr())
         if not isinstance(iterable, GQLSet):
-            raise GQLTypeError(expected_t=GQLSet, actual_t=type(iterable))
+            raise GQLTypeError(msg=f"Can not apply map on {type(iterable)} object. Set expected.")
         if len(iterable) == 0:
             return iterable
-        pass
+        first_elem = next(iter(iterable.data))
+        param_count = len(first_elem.data) if isinstance(first_elem, GQLSet) else 1
+        if len(fun.params) != param_count:
+            raise GQLTypeError(msg=f"Lambda argument count mismatched: Expected {len(fun.params)} Got {param_count}")
+        # TODO: Expecting that iterable consists of elements for 1-param lambda
+        # TODO: Expand this for multi-params
+        # TODO: Order of elements will be changed, think of frozen set?
+        new_iterable = set()
+        for elem in iterable.data:
+            result = self._apply_lambda(fun, elem)
+            if method == "map":
+                new_iterable.add(result)
+            elif method == "filter":
+                if result:
+                    new_iterable.add(elem)
+            else:
+                raise NotImplementedError(f"CustomVisitor._iter_method wrong method {method}")
+
+        return GQLSet(internal_set=new_iterable)
+
+    def visitMap_gql(self, ctx: MinGQLParser.Map_gqlContext):
+        return self._iter_method(ctx, method="map")
 
     def visitFilter_gql(self, ctx: MinGQLParser.Filter_gqlContext):
-        pass
+        return self._iter_method(ctx, method="filter")
 
     def visitGraph_gql(self, ctx: MinGQLParser.Graph_gqlContext) -> GQLAutomata:
         return self.visitChildren(ctx)

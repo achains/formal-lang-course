@@ -19,7 +19,6 @@ class GQLRSM(GQLAutomata):
             rhs = RSMMatrixSparse.from_rsm(other.rsm)
             inter = lhs.intersect(rhs)
 
-
     def union(self, other):
         raise NotImplementedException("RSM.union")
 
@@ -28,6 +27,9 @@ class GQLRSM(GQLAutomata):
 
     def inverse(self):
         raise NotImplementedException("RSM.inverse")
+
+    def kleene(self):
+        raise NotImplementedException("RSM.kleene")
 
     def __str__(self):
         return "Some graph"
@@ -58,4 +60,11 @@ class GQLRSM(GQLAutomata):
 
     @property
     def edges(self):
+        return
+
+    @property
+    def vertices(self):
+        return
+
+    def getReachable(self):
         return

@@ -48,6 +48,3 @@ class GQLTypeError(RunTimeException):
     """
     Raises if expected and actual types differ
     """
-
-    def __init__(self, expected_t: type, actual_t: type):
-        self.msg = f"Type {actual_t} is not {expected_t}"

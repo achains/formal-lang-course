@@ -16,8 +16,14 @@ class GQLBool(GQLType):
     def dot(self, other: 'GQLBool'):
         raise NotImplementedException("Bool doesn't support '.' operation")
 
+    def kleene(self):
+        raise NotImplementedException("Bool doesn't support '*' operation")
+
     def inverse(self):
         return GQLBool(not self.b)
+
+    def __bool__(self):
+        return self.b
 
     def __str__(self):
         return "true" if self.b else "false"

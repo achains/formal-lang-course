@@ -11,11 +11,15 @@ class GQLSet(GQLType):
 
     @staticmethod
     def get_type(set_obj: set) -> type:
+        if len(set_obj) == 0:
+            return type(None)
         iseq = iter(set_obj)
         return type(next(iseq))
 
     @staticmethod
     def _type_consistency(set_obj: set):
+        if len(set_obj) == 0:
+            return True
         iseq = iter(set_obj)
         t = type(next(iseq))
         return all(map(lambda x: isinstance(x, t), iseq))
@@ -23,8 +27,6 @@ class GQLSet(GQLType):
     # TODO: Allow empty sets
     @classmethod
     def fromSet(cls, pyset: set):
-        if len(pyset) == 0:
-            raise NotImplementedException("Set with no elements are not supported")
         if not GQLSet._type_consistency(pyset):
             raise GQLTypeError
         return GQLSet(pyset)
@@ -45,12 +47,12 @@ class GQLSet(GQLType):
 
     def intersect(self, other):
         if self.t != other.t:
-            raise GQLTypeError(self.t, other.t)
+            raise GQLTypeError(f"Types mismatched: {self.t} != {other.t}")
         return GQLSet(internal_set=self.data & other.data)
 
     def union(self, other):
         if self.t != other.t:
-            raise GQLTypeError(self.t, other.t)
+            raise GQLTypeError(f"Types mismatched: {self.t} != {other.t}")
         return GQLSet(internal_set=self.data | other.data)
 
     def dot(self, other):
@@ -63,4 +65,4 @@ class GQLSet(GQLType):
         raise NotImplementedException("Set inverse")
 
     def __str__(self):
-        return str(self.data)
+        return "{" + ', '.join(map(lambda x: str(x), self.data)) + "}"

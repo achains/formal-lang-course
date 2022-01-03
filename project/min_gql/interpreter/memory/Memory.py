@@ -24,7 +24,8 @@ class Memory:
     def removeLast(self):
         new_table = Memory()
         new_table.tables = self.tables.copy()
-        return new_table[:-1]
+        new_table.tables = new_table.tables[:-1]
+        return new_table
 
     def find(self, name: str):
         scope_level = len(self.tables) - 1
