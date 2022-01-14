@@ -1,4 +1,5 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
+from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
 from project.utils.automata_utils import transform_graph_to_nfa, add_nfa_states, replace_nfa_states
 from project.utils.rsm_sparse import RSMMatrixSparse
 
@@ -23,7 +24,7 @@ class GQLFA(GQLAutomata):
         return GQLFA(intersection)
 
     def union(self, other):
-        return GQLFA(self.nfa.union(other).to_deterministic())
+        return GQLFA(self.nfa.union(other.nfa).to_deterministic())
 
     def dot(self, other):
         lhs = self.nfa.to_regex()
@@ -44,37 +45,37 @@ class GQLFA(GQLAutomata):
     def __str__(self):
         return str(self.nfa.to_dict())
 
-    def setStart(self, start_states):
-        self.nfa = replace_nfa_states(self.nfa, start_states=start_states)
+    def setStart(self, start_states: GQLSet):
+        self.nfa = replace_nfa_states(self.nfa, start_states=start_states.data)
 
-    def setFinal(self, final_states):
-        self.nfa = replace_nfa_states(self.nfa, final_states=final_states)
+    def setFinal(self, final_states: GQLSet):
+        self.nfa = replace_nfa_states(self.nfa, final_states=final_states.data)
 
-    def addStart(self, start_states):
-        self.nfa = add_nfa_states(self.nfa, start_states=start_states)
+    def addStart(self, start_states: GQLSet):
+        self.nfa = add_nfa_states(self.nfa, start_states=start_states.data)
 
-    def addFinal(self, final_states):
-        self.nfa = add_nfa_states(self.nfa, final_states=final_states)
+    def addFinal(self, final_states: GQLSet):
+        self.nfa = add_nfa_states(self.nfa, final_states=final_states.data)
 
     def getReachable(self):
         raise NotImplementedException("Graph.Reachable")
 
     @property
     def start(self):
-        return self.nfa.start_states
+        return GQLSet(self.nfa.start_states)
 
     @property
     def final(self):
-        return self.nfa.final_states
+        return GQLSet(self.nfa.final_states)
 
     @property
     def labels(self):
-        return self.nfa.symbols
+        return GQLSet(self.nfa.symbols)
 
     @property
     def edges(self):
-        raise self.nfa.states
+        raise NotImplementedException("GQLFA.edges")
 
     @property
     def vertices(self):
-        return self.nfa.states
+        return GQLSet(self.nfa.states)

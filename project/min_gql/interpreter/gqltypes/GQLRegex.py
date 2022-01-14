@@ -40,4 +40,7 @@ class GQLRegex(GQLType):
         return GQLRegex(regex_str=f"({self.regex_str}|{other.regex_str})")
 
     def __str__(self):
-        return self.regex_str.lstrip("(").rstrip(")")
+        str_regex = self.regex_str
+        while str_regex[0] == '(' and str_regex[-1] == ')':
+            str_regex = str_regex[1:-1]
+        return str_regex
