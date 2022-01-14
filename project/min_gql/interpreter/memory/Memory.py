@@ -31,7 +31,7 @@ class Memory:
         scope_level = len(self.tables) - 1
         while scope_level >= 0:
             value = self.tables[scope_level].get(name)
-            if value:
+            if value is not None:
                 return value
             scope_level -= 1
         raise VariableNotFoundException(name=name)
