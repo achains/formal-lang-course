@@ -48,3 +48,4 @@ class GQLTypeError(RunTimeException):
     """
     Raises if expected and actual types differ
     """
+    pass

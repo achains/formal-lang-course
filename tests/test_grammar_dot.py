@@ -1,7 +1,6 @@
 import sys
 
 import pytest
-import os
 
 from pathlib import Path
 
@@ -9,7 +8,7 @@ from pathlib import Path
 if sys.platform.startswith("win"):
     pytest.skip("skipping", allow_module_level=True)
 else:
-    from project.parser import generate_dot
+    from project.min_gql.parser import generate_dot
 
 from antlr4.error.Errors import ParseCancellationException
 

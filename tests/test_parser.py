@@ -4,7 +4,7 @@ import platform
 if platform.system() == "Windows":
     pytest.skip("skipping", allow_module_level=True)
 else:
-    from project.parser import parse
+    from project.min_gql.parser import parse
 
 
 def check_parser(text, token: str) -> bool:
