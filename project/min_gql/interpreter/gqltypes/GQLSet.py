@@ -46,12 +46,12 @@ class GQLSet(GQLType):
         return GQLBool(value in self._internal_set)
 
     def intersect(self, other):
-        if self.t != other.t:
+        if self.data and other.data and self.t != other.t:
             raise GQLTypeError(f"Types mismatched: {self.t} != {other.t}")
         return GQLSet(internal_set=self.data & other.data)
 
     def union(self, other):
-        if self.t != other.t:
+        if self.data and other.data and self.t != other.t:
             raise GQLTypeError(f"Types mismatched: {self.t} != {other.t}")
         return GQLSet(internal_set=self.data | other.data)
 
