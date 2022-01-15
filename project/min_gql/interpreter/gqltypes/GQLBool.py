@@ -25,5 +25,8 @@ class GQLBool(GQLType):
     def __bool__(self):
         return self.b
 
+    def __eq__(self, other: 'GQLBool') -> bool:
+        return self.b == other.b
+
     def __str__(self):
         return "true" if self.b else "false"
