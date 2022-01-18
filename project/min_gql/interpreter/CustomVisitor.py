@@ -6,6 +6,7 @@ from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
 from project.min_gql.interpreter.gqltypes.GQLRegex import GQLRegex
 from project.min_gql.interpreter.gqltypes.GQLBool import GQLBool
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
+from project.min_gql.interpreter.gqltypes.GQLRSM import GQLRSM
 
 from project.min_gql.interpreter.memory.Memory import Memory
 
@@ -93,6 +94,10 @@ class CustomVisitor(MinGQLVisitor):
         label = self.visit(ctx.label())
         vertex_to = self.visit(ctx.vertex(1))
         return vertex_from, label, vertex_to
+
+    def visitCfg(self, ctx: MinGQLParser.CfgContext) -> GQLRSM:
+        cfg_text = ctx.CFG().getText().strip('"""')
+        return GQLRSM.fromText(cfg_text)
 
     def visitEdges(self, ctx: MinGQLParser.EdgesContext):
         return self.visitChildren(ctx)

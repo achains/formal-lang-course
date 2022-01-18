@@ -22,6 +22,7 @@ expr : LP expr RP
 
 graph_gql : load_graph
       | set_start
+      | cfg
       | set_final
       | add_start
       | add_final
@@ -33,6 +34,8 @@ set_start : SET_START LP (graph_gql | var) COMMA (vertices | var) RP ;
 set_final : SET_FINAL LP (graph_gql | var) COMMA (vertices | var) RP ;
 add_start : ADD_START LP (graph_gql | var) COMMA (vertices | var) RP ;
 add_final : ADD_FINAL LP (graph_gql | var) COMMA (vertices | var) RP ;
+
+cfg : CFG ;
 
 vertices : vertex
        | range_gql
@@ -142,6 +145,10 @@ LCB : '{' WS?;
 RCB : WS? '}' WS?;
 LP : '(' WS?;
 RP : WS? ')' ;
+TRIPLE_QUOT : '"""' ;
+ARROW : '->' ;
+
+CFG : TRIPLE_QUOT (CHAR | DIGIT | ' ' | '\n' | ARROW)* TRIPLE_QUOT ;
 
 INT : NONZERO DIGIT* ;
 
