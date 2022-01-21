@@ -1,12 +1,10 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
-from project.min_gql.interpreter.gqltypes.GQLFA import GQLFA
+# from project.min_gql.interpreter.gqltypes.GQLFA import GQLFA
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
 
 from project.grammars.rsm import RSM
 from project.grammars.ecfg import ECFG
 from project.utils.cfg_utils import transform_ecfg_to_rsm
-
-from pyformlang.cfg import CFG
 
 from project.min_gql.interpreter.exceptions import NotImplementedException, ConversionException
 
@@ -25,7 +23,7 @@ class GQLRSM(GQLAutomata):
             raise ConversionException("str", "ECFG") from e
 
     def intersect(self, other):
-        if isinstance(other, GQLFA):
+        if isinstance(other, GQLAutomata):
             intersection = self.rsm.to_pda().intersection(other)
         else:
             raise ConversionException("Can't intersect GQLRSM with", str(type(other)))
@@ -49,7 +47,11 @@ class GQLRSM(GQLAutomata):
         raise NotImplementedException("GQLRSM.kleene")
 
     def __str__(self):
-        return self.cfg.to_text()
+        str_boxes = []
+        for box in self.rsm.boxes:
+            str_boxes.append(f"{box.variable}: {str(box.dfa.to_regex())}")
+
+        return '\n'.join(str_boxes)
 
     def setStart(self, start_states):
         pass

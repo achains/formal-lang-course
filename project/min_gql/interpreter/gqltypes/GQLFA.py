@@ -39,6 +39,7 @@ class GQLFA(GQLAutomata):
         lhs = RSMMatrixSparse.from_nfa(self.nfa)
         rhs = RSMMatrixSparse.from_rsm(other.rsm)
         intersection = lhs.intersect(rhs)
+        return GQLRSM(rsm=intersection.to_rsm())
 
     def intersect(self, other):
         if isinstance(other, GQLFA):
