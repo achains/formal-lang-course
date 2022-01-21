@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from pyformlang.cfg import Variable
-from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State
+from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State, Symbol
 
 from project.grammars.rsm import RSM
 from project.grammars.rsm_box import RSMBox
@@ -30,6 +30,7 @@ class BooleanMatrix(ABC):
 
     def __init__(self):
         self.number_of_states = 0
+        self.start_symbol = Variable("S")
         self.start_states = set()
         self.final_states = set()
         self.indexed_states = {}
@@ -51,6 +52,7 @@ class BooleanMatrix(ABC):
             Recursive State Machine
         """
         bm = cls()
+        bm.start_symbol = rsm.start_symbol
         bm.number_of_states = sum(len(box.dfa.states) for box in rsm.boxes)
         box_idx = 0
         for box in rsm.boxes:
@@ -79,6 +81,39 @@ class BooleanMatrix(ABC):
             box_idx += len(box.dfa.states)
 
         return bm
+
+    def to_rsm(self) -> RSM:
+        """
+        Transform boolean matrix to RSM
+
+        Returns
+        -------
+        rsm: RSM
+        """
+
+        index_to_state = {value: key for key, value in self.indexed_states.items()}
+
+        boxes = {}
+        for box_head_index in self.start_states:
+            start_variable = Variable(index_to_state[box_head_index].value.split('#')[-1])
+            boxes.update({start_variable: NondeterministicFiniteAutomaton()})
+
+        for label in self.bmatrix:
+            for i, j in zip(*self.bmatrix[label].nonzero()):
+                box_variable = Variable(index_to_state[i].value.split('#')[-1])
+                boxes[box_variable].add_transition(State(i), Symbol(label), State(j))
+
+        for start_state_idx in self.start_states:
+            box_variable = Variable(index_to_state[start_state_idx].value.split('#')[-1])
+            boxes[box_variable].add_start_state(State(start_state_idx))
+
+        for final_state_idx in self.final_states:
+            box_variable = Variable(index_to_state[final_state_idx].value.split('#')[-1])
+            boxes[box_variable].add_final_state(State(final_state_idx))
+
+        rsm_boxes = [RSMBox(var, dfa.minimize()) for var, dfa in boxes.items()]
+
+        return RSM(start_symbol=self.start_symbol, boxes=rsm_boxes)
 
     def _create_box_bool_matrices(self, box: RSMBox) -> dict:
         """

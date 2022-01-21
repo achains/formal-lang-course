@@ -118,13 +118,3 @@ def test_transitive_closure(lhs_nfa):
     tc = dok_matrix([[True, True], [True, True]])
 
     assert lhs_bm.get_transitive_closure().toarray().data == tc.toarray().data
-
-
-def test_foo():
-    from project.utils.graph_utils import generate_two_cycles_graph
-    from project.utils.cfg_utils import transform_ecfg_to_rsm
-    grammar = """
-                A -> a A | epsilon
-                B -> b B | b
-                """
-    mx = RSMMatrixSparse.from_rsm()
