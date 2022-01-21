@@ -9,6 +9,7 @@ class GQLRegex(GQLType):
     def __init__(self, regex_str: str):
         self.regex_str = regex_str
 
+    # TODO: This method should be in GQLFA
     @classmethod
     def fromString(cls, regex_str: str):
         try:

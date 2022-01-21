@@ -1,7 +1,10 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
+from project.min_gql.interpreter.gqltypes.GQLFA import GQLFA
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
+from project.min_gql.interpreter.gqltypes.GQLRegex import GQLRegex
 
 from pyformlang.cfg import CFG
+from pyformlang.pda import PDA
 
 from project.min_gql.interpreter.exceptions import NotImplementedException, ConversionException
 
@@ -9,6 +12,7 @@ from project.min_gql.interpreter.exceptions import NotImplementedException, Conv
 class GQLCFG(GQLAutomata):
     def __init__(self, cfg: CFG):
         self.cfg = cfg
+        self.reachable = None
 
     @classmethod
     def fromText(cls, text: str):
@@ -18,11 +22,17 @@ class GQLCFG(GQLAutomata):
         except ValueError as e:
             raise ConversionException("str", "CFG") from e
 
+
     def intersect(self, other):
-        if not isinstance(other, GQLCFG):
+        if isinstance(other, GQLFA):
+            intersection = self.cfg.to_pda().intersection(other)
+        elif isinstance(other, GQLRegex):
+            fa = GQLRegex.fromString(other.regex_str)
+            intersection = self.cfg.to_pda().intersection(fa.nfa)
+        else:
             raise ConversionException("Can't intersect GQLCFG with", str(type(other)))
 
-        return GQLCFG(cfg=self.cfg.intersection(other))
+        return GQLCFG(cfg=intersection.to_cfg())
 
     def union(self, other):
         if isinstance(other, GQLCFG):
@@ -41,7 +51,7 @@ class GQLCFG(GQLAutomata):
         raise NotImplementedException("GQLCFG.kleene")
 
     def __str__(self):
-        return "Some CFG"
+        return self.cfg.to_text()
 
     def setStart(self, start_states):
         pass

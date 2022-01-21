@@ -13,11 +13,11 @@ expr : LP expr RP
      | var
      | val
      | NOT expr
+     | expr KLEENE
      | expr IN expr
      | expr AND expr
      | expr DOT expr
      | expr OR expr
-     | expr KLEENE
      ;
 
 graph_gql : load_graph
