@@ -3,7 +3,7 @@ from project.min_gql.grammar.MinGQLParser import MinGQLParser
 
 from project.min_gql.interpreter.gqltypes.GQLType import GQLType
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
-from project.min_gql.interpreter.gqltypes.GQLRegex import GQLRegex
+from project.min_gql.interpreter.gqltypes.GQLFA import GQLFA
 from project.min_gql.interpreter.gqltypes.GQLBool import GQLBool
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
 from project.min_gql.interpreter.gqltypes.GQLCFG import GQLCFG
@@ -80,7 +80,7 @@ class CustomVisitor(MinGQLVisitor):
         return GQLSet(set(map(lambda x: int(x.getText()), ctx.INT())))
 
     def visitLabel(self, ctx: MinGQLParser.LabelContext):
-        return GQLRegex(self.visit(ctx.string()))
+        return GQLFA.fromString(self.visit(ctx.string()))
 
     def visitLabels_set(self, ctx: MinGQLParser.Labels_setContext):
         labels_set = set()

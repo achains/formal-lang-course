@@ -1,23 +1,35 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
 from project.utils.automata_utils import transform_graph_to_nfa, add_nfa_states, replace_nfa_states
+from project.utils.automata_utils import transform_regex_to_dfa, AutomataException
 from project.utils.rsm_sparse import RSMMatrixSparse
+
 
 from networkx import MultiDiGraph
 from pyformlang.finite_automaton import NondeterministicFiniteAutomaton
 
-from project.min_gql.interpreter.exceptions import NotImplementedException
+from project.min_gql.interpreter.exceptions import NotImplementedException, ConversionException
 
 
 class GQLFA(GQLAutomata):
     def __init__(self, nfa: NondeterministicFiniteAutomaton):
         self.nfa = nfa
+        self.reachable = None
 
     @classmethod
     def fromGraph(cls, graph: MultiDiGraph):
         return cls(nfa=transform_graph_to_nfa(graph))
 
+    @classmethod
+    def fromString(cls, regex_str: str):
+        try:
+            return GQLFA(nfa=transform_regex_to_dfa(regex_str))
+        except AutomataException as exc:
+            raise ConversionException from exc
+
     def intersect(self, other):
+        if not isinstance(other, GQLFA):
+            raise ConversionException("GQLFA", str(type(other)))
         lhs = RSMMatrixSparse.from_nfa(self.nfa)
         rhs = RSMMatrixSparse.from_nfa(other.nfa)
         intersection = lhs.intersect(rhs).to_nfa()
@@ -32,18 +44,13 @@ class GQLFA(GQLAutomata):
         return GQLFA(lhs.concatenate(rhs).to_epsilon_nfa().to_deterministic())
 
     def inverse(self):
-        inv_nfa = self.nfa.copy()
-        for state in inv_nfa.states:
-            inv_nfa.add_final_state(state)
-        for state in self.nfa.final_states:
-            inv_nfa.remove_final_state(state)
-        return GQLFA(nfa=inv_nfa)
+        return GQLFA(self.nfa.get_complement().to_deterministic())
 
     def kleene(self):
         return GQLFA(nfa=self.nfa.kleene_star().to_deterministic())
 
     def __str__(self):
-        return str(self.nfa.to_dict())
+        return str(self.nfa.minimize().to_regex())
 
     def setStart(self, start_states: GQLSet):
         self.nfa = replace_nfa_states(self.nfa, start_states=start_states.data)
@@ -59,6 +66,8 @@ class GQLFA(GQLAutomata):
 
     def getReachable(self):
         raise NotImplementedException("Graph.Reachable")
+
+    # TODO: start, final should be pretty-printed?
 
     @property
     def start(self):

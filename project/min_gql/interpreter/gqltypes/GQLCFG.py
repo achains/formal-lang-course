@@ -1,7 +1,6 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
 from project.min_gql.interpreter.gqltypes.GQLFA import GQLFA
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
-from project.min_gql.interpreter.gqltypes.GQLRegex import GQLRegex
 
 from pyformlang.cfg import CFG
 from pyformlang.pda import PDA
@@ -22,13 +21,9 @@ class GQLCFG(GQLAutomata):
         except ValueError as e:
             raise ConversionException("str", "CFG") from e
 
-
     def intersect(self, other):
         if isinstance(other, GQLFA):
             intersection = self.cfg.to_pda().intersection(other)
-        elif isinstance(other, GQLRegex):
-            fa = GQLRegex.fromString(other.regex_str)
-            intersection = self.cfg.to_pda().intersection(fa.nfa)
         else:
             raise ConversionException("Can't intersect GQLCFG with", str(type(other)))
 
