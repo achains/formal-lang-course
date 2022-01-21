@@ -37,29 +37,6 @@ class BooleanMatrix(ABC):
         self.block_size = 1
         self.states_to_box_variable = {}
 
-    # def transitive_closure(self):
-    #     """
-    #     Computes transitive closure of boolean matrices
-    #
-    #     Returns
-    #     -------
-    #     tc: dok_matrix
-    #         Transitive closure of boolean matrices
-    #     """
-    #     if not self.bmatrix.values():
-    #         return dok_matrix((1, 1))
-    #
-    #     tc = sum(self.bmatrix.values())
-    #
-    #     prev_nnz = tc.nnz
-    #     curr_nnz = 0
-    #
-    #     while prev_nnz != curr_nnz:
-    #         tc += tc @ tc
-    #         prev_nnz, curr_nnz = curr_nnz, tc.nnz
-    #
-    #     return tc
-
     def get_nonterminals(self, s_from, s_to):
         return self.states_to_box_variable.get((s_from, s_to))
 

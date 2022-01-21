@@ -1,8 +1,10 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
+from project.min_gql.interpreter.gqltypes.GQLRSM import GQLRSM
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
 from project.utils.automata_utils import transform_graph_to_nfa, add_nfa_states, replace_nfa_states
 from project.utils.automata_utils import transform_regex_to_dfa, AutomataException
 from project.utils.rsm_sparse import RSMMatrixSparse
+from project.rpq.rpq import get_reachable
 
 
 from networkx import MultiDiGraph
@@ -12,9 +14,9 @@ from project.min_gql.interpreter.exceptions import NotImplementedException, Conv
 
 
 class GQLFA(GQLAutomata):
-    def __init__(self, nfa: NondeterministicFiniteAutomaton):
+    def __init__(self, nfa: NondeterministicFiniteAutomaton, reachable_set: set = None):
         self.nfa = nfa
-        self.reachable = None
+        self.reachable_set = reachable_set or self.__getReachable(nfa=nfa)
 
     @classmethod
     def fromGraph(cls, graph: MultiDiGraph):
@@ -27,13 +29,24 @@ class GQLFA(GQLAutomata):
         except AutomataException as exc:
             raise ConversionException from exc
 
-    def intersect(self, other):
-        if not isinstance(other, GQLFA):
-            raise ConversionException("GQLFA", str(type(other)))
+    def __intersectFA(self, other: "GQLFA") -> "GQLFA":
         lhs = RSMMatrixSparse.from_nfa(self.nfa)
         rhs = RSMMatrixSparse.from_nfa(other.nfa)
-        intersection = lhs.intersect(rhs).to_nfa()
-        return GQLFA(intersection)
+        intersection = lhs.intersect(rhs)
+        return GQLFA(nfa=intersection.to_nfa(), reachable_set=get_reachable(bmatrix=intersection))
+
+    def __intersectRSM(self, other: GQLRSM) -> GQLRSM:
+        lhs = RSMMatrixSparse.from_nfa(self.nfa)
+        rhs = RSMMatrixSparse.from_rsm(other.rsm)
+        intersection = lhs.intersect(rhs)
+
+    def intersect(self, other):
+        if isinstance(other, GQLFA):
+            return self.__intersectFA(other=other)
+        if isinstance(other, GQLRSM):
+            return self.__intersectRSM(other=other)
+
+        raise ConversionException
 
     def union(self, other):
         return GQLFA(self.nfa.union(other.nfa).to_deterministic())
@@ -64,10 +77,15 @@ class GQLFA(GQLAutomata):
     def addFinal(self, final_states: GQLSet):
         self.nfa = add_nfa_states(self.nfa, final_states=final_states.data)
 
-    def getReachable(self):
-        raise NotImplementedException("Graph.Reachable")
+    @staticmethod
+    def __getReachable(nfa: NondeterministicFiniteAutomaton) -> set:
+        bmatrix = RSMMatrixSparse.from_nfa(nfa)
+        return get_reachable(bmatrix)
 
     # TODO: start, final should be pretty-printed?
+
+    def getReachable(self):
+        return GQLSet(self.reachable_set)
 
     @property
     def start(self):
