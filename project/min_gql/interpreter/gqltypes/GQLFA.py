@@ -1,5 +1,5 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
-from project.min_gql.interpreter.gqltypes.GQLRSM import GQLRSM
+from project.min_gql.interpreter.gqltypes.GQLCFG import GQLCFG
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
 from project.utils.automata_utils import transform_graph_to_nfa, add_nfa_states, replace_nfa_states
 from project.utils.automata_utils import transform_regex_to_dfa, AutomataException
@@ -35,16 +35,14 @@ class GQLFA(GQLAutomata):
         intersection = lhs.intersect(rhs)
         return GQLFA(nfa=intersection.to_nfa(), reachable_set=get_reachable(bmatrix=intersection))
 
-    def __intersectRSM(self, other: GQLRSM) -> GQLRSM:
-        lhs = RSMMatrixSparse.from_nfa(self.nfa)
-        rhs = RSMMatrixSparse.from_rsm(other.rsm)
-        intersection = lhs.intersect(rhs)
-        return GQLRSM(rsm=intersection.to_rsm())
+    def __intersectRSM(self, other: GQLCFG) -> GQLCFG:
+        intersection = other.intersect(self)
+        return intersection
 
     def intersect(self, other):
         if isinstance(other, GQLFA):
             return self.__intersectFA(other=other)
-        if isinstance(other, GQLRSM):
+        if isinstance(other, GQLCFG):
             return self.__intersectRSM(other=other)
 
         raise ConversionException
