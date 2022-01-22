@@ -7,6 +7,19 @@ __all__ = ["interpreter"]
 
 
 def interpreter(program: str):
+    """
+    Interpreter function
+
+    Parameters
+    ----------
+    program: str
+        Program text
+
+    Returns
+    -------
+    error_code: int
+        0 - Success
+    """
     parser = parse(text=program)
     tree = parser.prog()
 

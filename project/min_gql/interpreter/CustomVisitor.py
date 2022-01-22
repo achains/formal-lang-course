@@ -201,9 +201,8 @@ class CustomVisitor(MinGQLVisitor):
     ):
         graph = self.visit(ctx.var(0)) if ctx.var(0) else self.visit(ctx.graph_gql())
         states = self.visit(ctx.var(1)) if ctx.var(1) else self.visit(ctx.vertices())
-        getattr(graph, modify_method)(states)
 
-        return graph
+        return getattr(graph, modify_method)(states)
 
     def visitSet_final(self, ctx: MinGQLParser.Set_finalContext):
         return self._modify_states(ctx, modify_method="setFinal")

@@ -5,7 +5,7 @@ from project.min_gql.interpreter.gqltypes.GQLType import GQLType
 
 class GQLAutomata(GQLType, ABC):
     """
-    Base class for Automata (RSM, FA)
+    Base class for Automata (GQLRSM, GQLFA)
     """
 
     @abstractmethod

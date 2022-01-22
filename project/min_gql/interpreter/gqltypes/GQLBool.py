@@ -4,13 +4,44 @@ from project.min_gql.interpreter.exceptions import NotImplementedException
 
 
 class GQLBool(GQLType):
+    """
+    GQL boolean class
+
+    Attributes
+    ----------
+    b: bool
+        Internal boolean value
+    """
+
     def __init__(self, b: bool):
         self.b = b
 
     def intersect(self, other: "GQLBool") -> "GQLBool":
+        """
+        'AND'
+        Parameters
+        ----------
+        other: GQLBool
+            RHS boolean object
+        Returns
+        -------
+        intersection: GQLBool
+            Logical 'AND'
+        """
         return GQLBool(self.b and other.b)
 
     def union(self, other: "GQLBool") -> "GQLBool":
+        """
+        'OR'
+        Parameters
+        ----------
+        other: GQLBool
+            RHS boolean object
+        Returns
+        -------
+        intersection: GQLBool
+            Logical 'OR'
+        """
         return GQLBool(self.b or other.b)
 
     def dot(self, other: "GQLBool"):
@@ -19,7 +50,14 @@ class GQLBool(GQLType):
     def kleene(self):
         raise NotImplementedException("Bool doesn't support '*' operation")
 
-    def inverse(self):
+    def inverse(self) -> "GQLBool":
+        """
+        'NOT'
+        Returns
+        -------
+        complement: GQLBool
+            Logical 'NOT'
+        """
         return GQLBool(not self.b)
 
     def __bool__(self):
