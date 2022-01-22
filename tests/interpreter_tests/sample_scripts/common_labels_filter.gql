@@ -1,0 +1,6 @@
+g = load_graph("skos");
+f = load_graph("wine");
+g_labels = get_labels(g);
+f_labels = get_labels(f);
+common_labels = filter(fun label: label in f_labels, g_labels);
+print(common_labels);

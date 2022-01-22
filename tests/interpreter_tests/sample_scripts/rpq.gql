@@ -1,0 +1,5 @@
+graph = load_graph("skos");
+query = "l1"* | "l3";
+intersection = graph & query;
+reachable = get_reachable(intersection);
+print(reachable);

@@ -5,11 +5,13 @@ from project.utils.rsm_sparse import RSMMatrixSparse
 from project.utils.automata_utils import transform_graph_to_nfa, transform_regex_to_dfa
 
 
-def get_reachable(bmatrix: RSMMatrixSparse, query_bm: RSMMatrixSparse = None) -> Set[Tuple[int, int]]:
+def get_reachable(bmatrix: RSMMatrixSparse, query_bm: RSMMatrixSparse) -> Set[Tuple[int, int]]:
     """
 
     Parameters
     ----------
+    query_bm: RSMMatrixSparse
+        Query boolean matrix
     bmatrix: RSMMatrixSparse
         Boolean matrix object
     Returns

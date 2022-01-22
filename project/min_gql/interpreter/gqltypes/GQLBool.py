@@ -30,3 +30,6 @@ class GQLBool(GQLType):
 
     def __str__(self):
         return "true" if self.b else "false"
+
+    def __hash__(self):
+        return hash(self.b)

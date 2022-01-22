@@ -14,9 +14,8 @@ from project.min_gql.interpreter.exceptions import NotImplementedException, Conv
 
 
 class GQLFA(GQLAutomata):
-    def __init__(self, nfa: NondeterministicFiniteAutomaton, reachable_set: set = None):
+    def __init__(self, nfa: NondeterministicFiniteAutomaton):
         self.nfa = nfa
-        self.reachable_set = reachable_set or self.__getReachable(nfa=nfa)
 
     @classmethod
     def fromGraph(cls, graph: MultiDiGraph):
@@ -33,7 +32,7 @@ class GQLFA(GQLAutomata):
         lhs = RSMMatrixSparse.from_nfa(self.nfa)
         rhs = RSMMatrixSparse.from_nfa(other.nfa)
         intersection = lhs.intersect(rhs)
-        return GQLFA(nfa=intersection.to_nfa(), reachable_set=get_reachable(bmatrix=intersection))
+        return GQLFA(nfa=intersection.to_nfa())
 
     def __intersectRSM(self, other: GQLCFG) -> GQLCFG:
         intersection = other.intersect(self)
@@ -79,12 +78,12 @@ class GQLFA(GQLAutomata):
     @staticmethod
     def __getReachable(nfa: NondeterministicFiniteAutomaton) -> set:
         bmatrix = RSMMatrixSparse.from_nfa(nfa)
-        return get_reachable(bmatrix)
+        return get_reachable(bmatrix, bmatrix)
 
     # TODO: start, final should be pretty-printed?
 
     def getReachable(self):
-        return GQLSet(self.reachable_set)
+        return GQLSet(GQLFA.__getReachable(self.nfa))
 
     @property
     def start(self):
