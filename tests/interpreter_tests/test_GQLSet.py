@@ -23,11 +23,7 @@ def test_binary(lhs, op, rhs, expected):
 
 @pytest.mark.parametrize(
     "lhs, op, rhs",
-    [
-        ("{1, 2}", ".", "{1, 2, 3}"),
-        ("{1, 2, 3}", "*", ""),
-        ("", "not", "{1, 2, 3}")
-    ],
+    [("{1, 2}", ".", "{1, 2, 3}"), ("{1, 2, 3}", "*", ""), ("", "not", "{1, 2, 3}")],
 )
 def test_unsupported_op(lhs, op, rhs):
     expression = lhs + op + rhs
@@ -48,7 +44,7 @@ def test_unsupported_op(range_expr, expected):
 
 
 def test_mismatched_types():
-    lhs = '{1, 2, 3}'
+    lhs = "{1, 2, 3}"
     rhs = '{"1", "2", "3"}'
     expression = lhs + "&" + rhs
     with pytest.raises(GQLTypeError):

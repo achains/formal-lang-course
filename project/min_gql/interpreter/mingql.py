@@ -3,7 +3,7 @@ from project.min_gql.parser import parse
 from project.min_gql.interpreter.CustomVisitor import CustomVisitor
 
 
-__all__ = ['interpreter']
+__all__ = ["interpreter"]
 
 
 def interpreter(program: str):

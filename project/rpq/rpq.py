@@ -5,7 +5,9 @@ from project.utils.rsm_sparse import RSMMatrixSparse
 from project.utils.automata_utils import transform_graph_to_nfa, transform_regex_to_dfa
 
 
-def get_reachable(bmatrix: RSMMatrixSparse, query_bm: RSMMatrixSparse) -> Set[Tuple[int, int]]:
+def get_reachable(
+    bmatrix: RSMMatrixSparse, query_bm: RSMMatrixSparse
+) -> Set[Tuple[int, int]]:
     """
 
     Parameters
@@ -23,10 +25,7 @@ def get_reachable(bmatrix: RSMMatrixSparse, query_bm: RSMMatrixSparse) -> Set[Tu
 
     result = set()
     for state_from, state_to in zip(*tc.nonzero()):
-        if (
-            state_from in bmatrix.start_states
-            and state_to in bmatrix.final_states
-        ):
+        if state_from in bmatrix.start_states and state_to in bmatrix.final_states:
             result.add(
                 (
                     state_from // len(query_bm.indexed_states),

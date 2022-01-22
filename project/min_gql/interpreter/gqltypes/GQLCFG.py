@@ -6,7 +6,10 @@ from project.grammars.ecfg import ECFG
 from project.utils.cfg_utils import transform_ecfg_to_rsm
 from project.utils.rsm_sparse import RSMMatrixSparse
 
-from project.min_gql.interpreter.exceptions import NotImplementedException, ConversionException
+from project.min_gql.interpreter.exceptions import (
+    NotImplementedException,
+    ConversionException,
+)
 
 
 class GQLCFG(GQLAutomata):

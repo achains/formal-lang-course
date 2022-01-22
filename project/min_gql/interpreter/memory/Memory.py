@@ -6,7 +6,7 @@ from typing import List, Dict
 
 class Memory:
     def __init__(self):
-        self.tables: List[Dict[str: GQLType]] = [{}]
+        self.tables: List[Dict[str:GQLType]] = [{}]
 
     def add(self, name: str, value: GQLType, level: int = -1):
         if level >= len(self.tables):

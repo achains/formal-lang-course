@@ -9,7 +9,7 @@ import pytest
     "initial_set, fun, expected_set",
     [
         ("{1, 2}", "fun x: x in {2}", {GQLBool(True), GQLBool(False)}),
-        ("{1, 2, 3}", "fun x: 5", {5})
+        ("{1, 2, 3}", "fun x: 5", {5}),
     ],
 )
 def test_map(initial_set, fun, expected_set):

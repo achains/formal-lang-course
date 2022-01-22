@@ -65,4 +65,4 @@ class GQLSet(GQLType):
         raise NotImplementedException("Set inverse")
 
     def __str__(self):
-        return "{" + ', '.join(map(lambda x: str(x), self.data)) + "}"
+        return "{" + ", ".join(map(lambda x: str(x), self.data)) + "}"

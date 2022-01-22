@@ -95,20 +95,26 @@ class BooleanMatrix(ABC):
 
         boxes = {}
         for box_head_index in self.start_states:
-            start_variable = Variable(index_to_state[box_head_index].value.split('#')[-1])
+            start_variable = Variable(
+                index_to_state[box_head_index].value.split("#")[-1]
+            )
             boxes.update({start_variable: NondeterministicFiniteAutomaton()})
 
         for label in self.bmatrix:
             for i, j in zip(*self.bmatrix[label].nonzero()):
-                box_variable = Variable(index_to_state[i].value.split('#')[-1])
+                box_variable = Variable(index_to_state[i].value.split("#")[-1])
                 boxes[box_variable].add_transition(State(i), Symbol(label), State(j))
 
         for start_state_idx in self.start_states:
-            box_variable = Variable(index_to_state[start_state_idx].value.split('#')[-1])
+            box_variable = Variable(
+                index_to_state[start_state_idx].value.split("#")[-1]
+            )
             boxes[box_variable].add_start_state(State(start_state_idx))
 
         for final_state_idx in self.final_states:
-            box_variable = Variable(index_to_state[final_state_idx].value.split('#')[-1])
+            box_variable = Variable(
+                index_to_state[final_state_idx].value.split("#")[-1]
+            )
             boxes[box_variable].add_final_state(State(final_state_idx))
 
         rsm_boxes = [RSMBox(var, dfa.minimize()) for var, dfa in boxes.items()]

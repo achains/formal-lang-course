@@ -5,6 +5,7 @@ class GQLType(ABC):
     """
     Base Interface class for Interpreter types
     """
+
     @abstractmethod
     def __str__(self):
         pass

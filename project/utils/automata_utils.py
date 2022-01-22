@@ -48,7 +48,7 @@ def transform_regex_to_dfa(regex_str: str) -> DeterministicFiniteAutomaton:
 
 
 def transform_graph_to_nfa(
-        graph: MultiDiGraph, start_states: set = None, final_states: set = None
+    graph: MultiDiGraph, start_states: set = None, final_states: set = None
 ) -> NondeterministicFiniteAutomaton:
     """
     Transforms graph with a given name into NFA
@@ -102,8 +102,11 @@ def transform_graph_to_nfa(
     return nfa
 
 
-def replace_nfa_states(nfa: NondeterministicFiniteAutomaton, start_states: set = None, final_states: set = None
-                       ) -> NondeterministicFiniteAutomaton:
+def replace_nfa_states(
+    nfa: NondeterministicFiniteAutomaton,
+    start_states: set = None,
+    final_states: set = None,
+) -> NondeterministicFiniteAutomaton:
     new_nfa = nfa.copy()
 
     if start_states:
@@ -121,8 +124,11 @@ def replace_nfa_states(nfa: NondeterministicFiniteAutomaton, start_states: set =
     return new_nfa
 
 
-def add_nfa_states(nfa: NondeterministicFiniteAutomaton, start_states: set = None, final_states: set = None
-                      ) -> NondeterministicFiniteAutomaton:
+def add_nfa_states(
+    nfa: NondeterministicFiniteAutomaton,
+    start_states: set = None,
+    final_states: set = None,
+) -> NondeterministicFiniteAutomaton:
     new_nfa = nfa.copy()
 
     for state in start_states:

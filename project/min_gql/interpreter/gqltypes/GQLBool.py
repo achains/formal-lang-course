@@ -7,13 +7,13 @@ class GQLBool(GQLType):
     def __init__(self, b: bool):
         self.b = b
 
-    def intersect(self, other: 'GQLBool') -> 'GQLBool':
+    def intersect(self, other: "GQLBool") -> "GQLBool":
         return GQLBool(self.b and other.b)
 
-    def union(self, other: 'GQLBool') -> 'GQLBool':
+    def union(self, other: "GQLBool") -> "GQLBool":
         return GQLBool(self.b or other.b)
 
-    def dot(self, other: 'GQLBool'):
+    def dot(self, other: "GQLBool"):
         raise NotImplementedException("Bool doesn't support '.' operation")
 
     def kleene(self):
@@ -25,7 +25,7 @@ class GQLBool(GQLType):
     def __bool__(self):
         return self.b
 
-    def __eq__(self, other: 'GQLBool') -> bool:
+    def __eq__(self, other: "GQLBool") -> bool:
         return self.b == other.b
 
     def __str__(self):

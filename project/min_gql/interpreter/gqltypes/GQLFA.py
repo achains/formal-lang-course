@@ -1,7 +1,11 @@
 from project.min_gql.interpreter.gqltypes.GQLAutomata import GQLAutomata
 from project.min_gql.interpreter.gqltypes.GQLCFG import GQLCFG
 from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
-from project.utils.automata_utils import transform_graph_to_nfa, add_nfa_states, replace_nfa_states
+from project.utils.automata_utils import (
+    transform_graph_to_nfa,
+    add_nfa_states,
+    replace_nfa_states,
+)
 from project.utils.automata_utils import transform_regex_to_dfa, AutomataException
 from project.utils.rsm_sparse import RSMMatrixSparse
 from project.rpq.rpq import get_reachable
@@ -10,7 +14,10 @@ from project.rpq.rpq import get_reachable
 from networkx import MultiDiGraph
 from pyformlang.finite_automaton import NondeterministicFiniteAutomaton
 
-from project.min_gql.interpreter.exceptions import NotImplementedException, ConversionException
+from project.min_gql.interpreter.exceptions import (
+    NotImplementedException,
+    ConversionException,
+)
 
 
 class GQLFA(GQLAutomata):
