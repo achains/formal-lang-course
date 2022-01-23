@@ -1,13 +1,29 @@
-from project.min_gql.interpreter.mingql import interpreter
+from project.min_gql.interpreter.mingql import read_script, interpreter
+from project.min_gql.interpreter.exceptions import ScriptPathException, ScriptExtensionException
+
+from pathlib import Path
 
 import pytest
 
 
-# g = load_graph("skos");
-# f = load_graph("wine");
-# g_labels = get_labels(g);
-# f_labels = get_labels(f);
-# common_labels = g_labels & f_labels;
-# print(common_labels);
-# ^D
-# {http://www.w3.org/1999/02/22-rdf-syntax-ns#type, http://www.w3.org/2000/01/rdf-schema#subPropertyOf, http://www.w3.org/1999/02/22-rdf-syntax-ns#rest, http://www.w3.org/1999/02/22-rdf-syntax-ns#first, http://www.w3.org/2000/01/rdf-schema#comment, http://www.w3.org/2002/07/owl#unionOf, http://www.w3.org/2000/01/rdf-schema#domain, http://www.w3.org/2002/07/owl#disjointWith, http://www.w3.org/2002/07/owl#inverseOf, http://www.w3.org/2000/01/rdf-schema#subClassOf, http://www.w3.org/2000/01/rdf-schema#label, http://www.w3.org/2000/01/rdf-schema#range}
+def test_invalid_file_path():
+    with pytest.raises(ScriptPathException):
+        read_script(filename=Path("blablabla").absolute())
+
+
+def test_invalid_extension():
+    with pytest.raises(ScriptExtensionException):
+        read_script(filename=Path("tests/interpreter_tests/sample_scripts/invalid_extension.mgql"))
+
+
+@pytest.mark.parametrize(
+    "script_path",
+    [
+        "tests/interpreter_tests/sample_scripts/common_labels.gql",
+        "tests/interpreter_tests/sample_scripts/common_labels_filter.gql",
+        "tests/interpreter_tests/sample_scripts/regex_intersection.gql",
+        "tests/interpreter_tests/sample_scripts/rpq.gql"
+    ],
+)
+def test_correct_script(script_path):
+    assert interpreter([Path(script_path)]) == 0

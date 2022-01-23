@@ -223,7 +223,8 @@ class GQLFA(GQLAutomata):
             Reachable vertices set
         """
         bmatrix = RSMMatrixSparse.from_nfa(nfa)
-        return get_reachable(bmatrix, bmatrix)
+        query = RSMMatrixSparse.from_nfa(transform_regex_to_dfa("epsilon"))
+        return get_reachable(bmatrix, query)
 
     # TODO: start, final should be pretty-printed?
 

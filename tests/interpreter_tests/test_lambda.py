@@ -1,5 +1,4 @@
 from interprert_token import interpret_token
-from project.min_gql.interpreter.gqltypes.GQLSet import GQLSet
 from project.min_gql.interpreter.gqltypes.GQLBool import GQLBool
 
 import pytest
