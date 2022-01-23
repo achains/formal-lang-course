@@ -4,17 +4,14 @@ from project.min_gql.interpreter.mingql import interpreter
 from project.min_gql.interpreter.exceptions import RunTimeException
 
 
-def main():
-    program = "".join(sys.stdin.readlines())
+def main(*argv):
     try:
-        interpreter(program)
-        sys.stdout.write("\nEnded with exit code 0")
-        return 0
+        interpreter(*argv)
     except RunTimeException as e:
-        sys.stdout.write(e.msg)
-        sys.stdout.write("\nEnded with exit code 1\n")
-        return 1
+        sys.stdout.write(f"Error: {e.msg}\n")
+        exit(1)
+    exit(0)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

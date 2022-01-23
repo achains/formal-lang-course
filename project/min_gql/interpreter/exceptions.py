@@ -7,6 +7,24 @@ class RunTimeException(Exception):
         self.msg = msg
 
 
+class ScriptPathException(RunTimeException):
+    """
+    Raises when failed to open given script
+    """
+
+    def __init__(self, filename: str):
+        self.msg = f"Could not open {filename}"
+
+
+class ScriptExtensionException(RunTimeException):
+    """
+    Raises when given script doesn't have .gql extension
+    """
+
+    def __init__(self):
+        self.msg = f"Script name doesn't match *.gql"
+
+
 class LoadGraphException(RunTimeException):
     """
     Raises when failed to load graph
