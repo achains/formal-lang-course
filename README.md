@@ -84,6 +84,8 @@
 - В `Google Colab` ноутбуке выполняется вся настройка, пишется код для экспериментов, подготовки отчетов и графиков.
 
 ### [Эксперимент. Задача 5. RPQ](https://colab.research.google.com/drive/18JAnDswOkz-QpQAFuHz-aERRqVrdVj_c?authuser=1#scrollTo=gEsQSDtfxVjx)
+### [Эксперимент. Задача 12. CFPQ](https://colab.research.google.com/drive/1r4BBdIQHWHsTh0_txkENbtghTqKnp72w?usp=sharing)
+
 
 ## Генерация парсера ANTLR
 Генерация парсера из грамматики `MinGQL.g4`
