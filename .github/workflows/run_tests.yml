@@ -58,11 +58,14 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-              antlr4 -Dlanguage=Python3 ./project/min_gql/grammar/MinGQL.g4
+              cd project/min_gql/grammar
+              antlr4 -Dlanguage=Python3 -visitor ./MinGQL.g4 -o .
           elif [ "$RUNNER_OS" == "Windows" ]; then
-              antlr4 -Dlanguage=Python3 ./project/min_gql/grammar/MinGQL.g4
+              cd project/min_gql/grammar
+              antlr4 -Dlanguage=Python3 -visitor ./MinGQL.g4 -o .
           else
-              antlr -Dlanguage=Python3 ./project/min_gql/grammar/MinGQL.g4
+              cd project/min_gql/grammar
+              antlr -Dlanguage=Python3 -visitor ./MinGQL.g4 -o .
           fi
 
       # Run tests from /tests directory

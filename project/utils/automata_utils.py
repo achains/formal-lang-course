@@ -100,3 +100,40 @@ def transform_graph_to_nfa(
         nfa.add_final_state(State(state))
 
     return nfa
+
+
+def replace_nfa_states(
+    nfa: NondeterministicFiniteAutomaton,
+    start_states: set = None,
+    final_states: set = None,
+) -> NondeterministicFiniteAutomaton:
+    new_nfa = nfa.copy()
+
+    if start_states:
+        for state in nfa.start_states:
+            new_nfa.remove_start_state(state)
+        for state in start_states:
+            new_nfa.add_start_state(state)
+
+    if final_states:
+        for state in nfa.final_states:
+            new_nfa.remove_final_state(state)
+        for state in final_states:
+            new_nfa.add_final_state(state)
+
+    return new_nfa
+
+
+def add_nfa_states(
+    nfa: NondeterministicFiniteAutomaton,
+    start_states: set = None,
+    final_states: set = None,
+) -> NondeterministicFiniteAutomaton:
+    new_nfa = nfa.copy()
+
+    for state in start_states:
+        new_nfa.add_start_state(state)
+    for state in final_states:
+        new_nfa.add_final_state(state)
+
+    return new_nfa

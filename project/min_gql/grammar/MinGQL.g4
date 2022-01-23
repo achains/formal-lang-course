@@ -13,16 +13,16 @@ expr : LP expr RP
      | var
      | val
      | NOT expr
+     | expr KLEENE
      | expr IN expr
      | expr AND expr
      | expr DOT expr
      | expr OR expr
-     | expr KLEENE
      ;
 
 graph_gql : load_graph
-      | string
       | set_start
+      | cfg
       | set_final
       | add_start
       | add_final
@@ -34,6 +34,8 @@ set_start : SET_START LP (graph_gql | var) COMMA (vertices | var) RP ;
 set_final : SET_FINAL LP (graph_gql | var) COMMA (vertices | var) RP ;
 add_start : ADD_START LP (graph_gql | var) COMMA (vertices | var) RP ;
 add_final : ADD_FINAL LP (graph_gql | var) COMMA (vertices | var) RP ;
+
+cfg : CFG ;
 
 vertices : vertex
        | range_gql
@@ -67,8 +69,7 @@ label : string ;
 
 
 lambda_gql : FUN variables COLON expr
-       | FUN COLON expr
-       | LP lambda_gql RP ;
+           | LP lambda_gql RP ;
 
 map_gql : MAP LP lambda_gql COMMA expr RP;
 filter_gql : FILTER LP lambda_gql COMMA expr RP;
@@ -97,7 +98,7 @@ var_edge : LP var COMMA var RP
          | LP LP var COMMA var RP COMMA var COMMA LP var COMMA var RP RP
          ;
 
-variables : (lambda_var COMMA)* lambda_var? ;
+variables : lambda_var (COMMA lambda_var)* COMMA?;
 
 lambda_var : var | var_edge ;
 
@@ -108,7 +109,7 @@ val : boolean
     | vertices
     ;
 
-boolean : 'true' | 'false' ;
+boolean : TRUE | FALSE ;
 
 // TOKENS
 COLON : WS? ':' WS? ;
@@ -128,6 +129,9 @@ FILTER : WS? 'filter' WS? ;
 MAP : WS? 'map' WS? ;
 PRINT : WS? 'print' WS?;
 
+TRUE : WS? 'true' WS?;
+FALSE : WS? 'false' WS?;
+
 ASSIGN : WS? '=' WS? ;
 AND : WS? '&' WS?;
 OR : WS? '|' WS? ;
@@ -141,6 +145,10 @@ LCB : '{' WS?;
 RCB : WS? '}' WS?;
 LP : '(' WS?;
 RP : WS? ')' ;
+TRIPLE_QUOT : '"""' ;
+ARROW : '->' ;
+
+CFG : TRIPLE_QUOT (CHAR | DIGIT | ' ' | '\n' | ARROW)* TRIPLE_QUOT ;
 
 INT : NONZERO DIGIT* ;
 

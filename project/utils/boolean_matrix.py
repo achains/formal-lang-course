@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from pyformlang.cfg import Variable
-from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State
+from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State, Symbol
 
 from project.grammars.rsm import RSM
 from project.grammars.rsm_box import RSMBox
@@ -30,35 +30,13 @@ class BooleanMatrix(ABC):
 
     def __init__(self):
         self.number_of_states = 0
+        self.start_symbol = Variable("S")
         self.start_states = set()
         self.final_states = set()
         self.indexed_states = {}
         self.bmatrix = {}
         self.block_size = 1
         self.states_to_box_variable = {}
-
-    # def transitive_closure(self):
-    #     """
-    #     Computes transitive closure of boolean matrices
-    #
-    #     Returns
-    #     -------
-    #     tc: dok_matrix
-    #         Transitive closure of boolean matrices
-    #     """
-    #     if not self.bmatrix.values():
-    #         return dok_matrix((1, 1))
-    #
-    #     tc = sum(self.bmatrix.values())
-    #
-    #     prev_nnz = tc.nnz
-    #     curr_nnz = 0
-    #
-    #     while prev_nnz != curr_nnz:
-    #         tc += tc @ tc
-    #         prev_nnz, curr_nnz = curr_nnz, tc.nnz
-    #
-    #     return tc
 
     def get_nonterminals(self, s_from, s_to):
         return self.states_to_box_variable.get((s_from, s_to))
@@ -74,6 +52,7 @@ class BooleanMatrix(ABC):
             Recursive State Machine
         """
         bm = cls()
+        bm.start_symbol = rsm.start_symbol
         bm.number_of_states = sum(len(box.dfa.states) for box in rsm.boxes)
         box_idx = 0
         for box in rsm.boxes:
@@ -102,6 +81,45 @@ class BooleanMatrix(ABC):
             box_idx += len(box.dfa.states)
 
         return bm
+
+    def to_rsm(self) -> RSM:
+        """
+        Transform boolean matrix to RSM
+
+        Returns
+        -------
+        rsm: RSM
+        """
+
+        index_to_state = {value: key for key, value in self.indexed_states.items()}
+
+        boxes = {}
+        for box_head_index in self.start_states:
+            start_variable = Variable(
+                index_to_state[box_head_index].value.split("#")[-1]
+            )
+            boxes.update({start_variable: NondeterministicFiniteAutomaton()})
+
+        for label in self.bmatrix:
+            for i, j in zip(*self.bmatrix[label].nonzero()):
+                box_variable = Variable(index_to_state[i].value.split("#")[-1])
+                boxes[box_variable].add_transition(State(i), Symbol(label), State(j))
+
+        for start_state_idx in self.start_states:
+            box_variable = Variable(
+                index_to_state[start_state_idx].value.split("#")[-1]
+            )
+            boxes[box_variable].add_start_state(State(start_state_idx))
+
+        for final_state_idx in self.final_states:
+            box_variable = Variable(
+                index_to_state[final_state_idx].value.split("#")[-1]
+            )
+            boxes[box_variable].add_final_state(State(final_state_idx))
+
+        rsm_boxes = [RSMBox(var, dfa.minimize()) for var, dfa in boxes.items()]
+
+        return RSM(start_symbol=self.start_symbol, boxes=rsm_boxes)
 
     def _create_box_bool_matrices(self, box: RSMBox) -> dict:
         """
@@ -256,6 +274,7 @@ class BooleanMatrix(ABC):
             intersection.bmatrix[label] = self._kron(
                 self.bmatrix[label], other.bmatrix[label]
             )
+            self.block_size = self.bmatrix[label].shape[0]
 
         for state_lhs, s_lhs_index in self.indexed_states.items():
             for state_rhs, s_rhs_index in other.indexed_states.items():

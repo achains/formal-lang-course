@@ -4,7 +4,7 @@ import platform
 if platform.system() == "Windows":
     pytest.skip("skipping", allow_module_level=True)
 else:
-    from project.parser import parse
+    from project.min_gql.parser import parse
 
 
 def check_parser(text, token: str) -> bool:
@@ -32,7 +32,7 @@ def test_var(text, accept):
 @pytest.mark.parametrize(
     "text, accept",
     [
-        ("fun : 5", True),
+        ("fun : 5", False),
         ("fun v: v in s", True),
         ("fun ((u_g,u_q2),l,(v_g,v_q1)) : u_g", True),
         ("fun {x, y, z} : 1", False),
@@ -49,7 +49,7 @@ def test_lambda(text, accept):
     [
         ("filter((fun x, y: x), a)", True),
         ("filter fun 1: 1 p", False),
-        ("filter         ((fun : 5)   ,   p)", True),
+        ("filter         ((fun : 5)   ,   p)", False),
         ("filter", False),
         ("filter(, x)", False),
         ("filter(fun x: x, )", False),
